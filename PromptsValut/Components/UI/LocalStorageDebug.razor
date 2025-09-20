@@ -1,5 +1,4 @@
 @using Microsoft.JSInterop
-@inject IJSRuntime JSRuntime
 
 <div class="fixed bottom-4 left-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg z-50 max-w-md">
     <h3 class="text-lg font-bold mb-2">Local Storage Debug</h3>
@@ -34,52 +33,3 @@
     }
 </div>
 
-@code {
-    private string debugMessage = string.Empty;
-
-    private async Task DebugLocalStorage()
-    {
-        try
-        {
-            var keys = await JSRuntime.InvokeAsync<string[]>("debugLocalStorage");
-            debugMessage = $"Found {keys.Length} items in localStorage. Check console for details.";
-        }
-        catch (Exception ex)
-        {
-            debugMessage = $"Error: {ex.Message}";
-        }
-    }
-
-    private async Task ClearLocalStorage()
-    {
-        try
-        {
-            var result = await JSRuntime.InvokeAsync<bool>("clearLocalStorage");
-            debugMessage = result ? "Local storage cleared successfully" : "Failed to clear local storage";
-        }
-        catch (Exception ex)
-        {
-            debugMessage = $"Error: {ex.Message}";
-        }
-    }
-
-    private async Task CheckAvailability()
-    {
-        try
-        {
-            var available = await JSRuntime.InvokeAsync<bool>("isLocalStorageAvailable");
-            debugMessage = available ? "Local storage is available" : "Local storage is not available";
-        }
-        catch (Exception ex)
-        {
-            debugMessage = $"Error: {ex.Message}";
-        }
-    }
-
-    private void ToggleVisibility()
-    {
-        // This would typically be handled by a parent component
-        // For now, we'll just clear the debug message
-        debugMessage = string.Empty;
-    }
-}

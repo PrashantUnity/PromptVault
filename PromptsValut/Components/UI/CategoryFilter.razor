@@ -1,5 +1,4 @@
 @using PromptsValut.Constants
-@inject IPromptService PromptService
 
 <div class="mt-6">
     <h2 class="text-xs font-semibold text-sidebar-foreground uppercase tracking-wider mb-3 px-2">
@@ -19,45 +18,3 @@
     </div>
 </div>
 
-@code {
-    [Parameter] public EventCallback<string> OnCategoryChanged { get; set; }
-    
-    protected override async Task OnInitializedAsync()
-    {
-        PromptService.StateChanged += StateHasChanged;
-        await Task.CompletedTask;
-    }
-
-    private async Task SelectCategory(string categoryId)
-    {
-        await OnCategoryChanged.InvokeAsync(categoryId);
-    }
-
-    private string GetCategoryClasses(string categoryId)
-    {
-        var isActive = PromptService.State.SelectedCategory == categoryId;
-        var baseClasses = "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200";
-        
-        if (isActive)
-        {
-            return $"{baseClasses} bg-blue-600 text-white shadow-md";
-        }
-        
-        return $"{baseClasses} hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100";
-    }
-
-    private int GetCategoryCount(string categoryId)
-    {
-        if (categoryId == "all")
-        {
-            return PromptService.State.Prompts.Count;
-        }
-        
-        return PromptService.State.Prompts.Count(p => p.Category == categoryId);
-    }
-
-    public void Dispose()
-    {
-        PromptService.StateChanged -= StateHasChanged;
-    }
-}

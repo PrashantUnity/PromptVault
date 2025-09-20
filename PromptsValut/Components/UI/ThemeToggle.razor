@@ -1,6 +1,4 @@
 @using PromptsValut.Constants
-@inject IPromptService PromptService
-@inject IJSRuntime JSRuntime
 
 <button 
     @onclick="ToggleTheme"
@@ -20,23 +18,3 @@
     }
 </button>
 
-@code {
-    [Parameter] public bool IsMobile { get; set; } = false;
-    [Parameter] public EventCallback OnToggleTheme { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        PromptService.StateChanged += StateHasChanged;
-        await Task.CompletedTask;
-    }
-
-    private async Task ToggleTheme()
-    {
-        await OnToggleTheme.InvokeAsync();
-    }
-
-    public void Dispose()
-    {
-        PromptService.StateChanged -= StateHasChanged;
-    }
-}

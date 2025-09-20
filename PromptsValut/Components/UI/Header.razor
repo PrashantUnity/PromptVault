@@ -1,6 +1,4 @@
 @using PromptsValut.Constants
-@inject IPromptService PromptService
-@inject IJSRuntime JSRuntime
 
 <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
     <!-- Mobile Layout -->
@@ -81,39 +79,3 @@
     </div>
 </header>
 
-@code {
-    [Parameter] public EventCallback OnToggleSidebar { get; set; }
-    [Parameter] public EventCallback OnToggleTheme { get; set; }
-    [Parameter] public EventCallback OnShowHelp { get; set; }
-    [Parameter] public EventCallback OnShowFavorites { get; set; }
-
-    private async Task ToggleSidebar()
-    {
-        await OnToggleSidebar.InvokeAsync();
-    }
-
-    private async Task ToggleTheme()
-    {
-        await OnToggleTheme.InvokeAsync();
-    }
-
-    private async Task ShowHelp()
-    {
-        await OnShowHelp.InvokeAsync();
-    }
-
-    private async Task ShowFavorites()
-    {
-        await OnShowFavorites.InvokeAsync();
-    }
-
-    private async Task OnSearchChanged(string searchQuery)
-    {
-        await PromptService.SetSearchQueryAsync(searchQuery);
-    }
-
-    private async Task RefreshData()
-    {
-        await PromptService.RefreshExternalDataAsync();
-    }
-}
