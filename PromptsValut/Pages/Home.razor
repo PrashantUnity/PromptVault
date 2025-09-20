@@ -142,7 +142,7 @@
 <!-- Modals -->
 <PromptDetailModal @ref="promptDetailModal" IsVisible="showPromptDetail" OnClose="ClosePromptDetail" />
 <HelpModal @ref="helpModal" IsVisible="PromptService.ShowHelpModal" OnClose="CloseHelpModal" />
-<FavoritesModal @ref="favoritesModal" IsVisible="showFavoritesModal" OnClose="CloseFavoritesModal" OnViewPrompt="OnPromptClick" />
+<FavoritesModal @ref="favoritesModal" IsVisible="PromptService.ShowFavoritesModal" OnClose="CloseFavoritesModal" OnViewPrompt="OnPromptClick" />
 <CreateModal @ref="createModal" IsVisible="showCreateModal" OnClose="CloseCreateModal" />
 <ExportImportModal @ref="exportImportModal" IsVisible="showExportImportModal" OnClose="CloseExportImportModal" />
 
@@ -154,7 +154,6 @@
     private ExportImportModal? exportImportModal;
     
     private bool showPromptDetail = false;
-    private bool showFavoritesModal = false;
     private bool showCreateModal = false;
     private bool showExportImportModal = false;
 
@@ -199,10 +198,10 @@
         await PromptService.SetRatingAsync(args.promptId, args.rating);
     }
 
-    private void ShowFavorites()
+    private async Task ShowFavorites()
     {
-        showFavoritesModal = true;
-        StateHasChanged();
+        await PromptService.SetShowFavoritesOnlyAsync(false); // Reset filter first
+        await PromptService.ShowFavoritesModalAsync();
     }
 
     private void ShowHistory()
@@ -233,10 +232,9 @@
         await PromptService.HideHelpModalAsync();
     }
 
-    private void CloseFavoritesModal()
+    private async Task CloseFavoritesModal()
     {
-        showFavoritesModal = false;
-        StateHasChanged();
+        await PromptService.HideFavoritesModalAsync();
     }
 
     private void CloseCreateModal()

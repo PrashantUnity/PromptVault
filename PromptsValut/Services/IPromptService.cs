@@ -7,6 +7,7 @@ public interface IPromptService
     event Action? StateChanged;
     AppState State { get; }
     bool ShowHelpModal { get; }
+    bool ShowFavoritesModal { get; }
     List<Prompt> Prompts { get; }
     List<Category> Categories { get; }
     List<Prompt> FilteredPrompts { get; }
@@ -34,6 +35,8 @@ public interface IPromptService
     Task<List<Prompt>> GetHistoryAsync();
     Task ShowHelpModalAsync();
     Task HideHelpModalAsync();
+    Task ShowFavoritesModalAsync();
+    Task HideFavoritesModalAsync();
     Task RefreshExternalDataAsync();
     Task ResetToDefaultStateAsync();
     Task<bool> ValidateAndRepairStateAsync();

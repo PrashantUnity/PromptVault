@@ -121,7 +121,7 @@ else
     @* Desktop Layout *@
     <div class="min-h-screen bg-background">
         <!-- Header -->
-        <Header @ref="header" OnToggleSidebar="ToggleSidebar" OnToggleTheme="ToggleTheme" OnShowHelp="ShowHelp" />
+        <Header @ref="header" OnToggleSidebar="ToggleSidebar" OnToggleTheme="ToggleTheme" OnShowHelp="ShowHelp" OnShowFavorites="ShowFavorites" />
         
         <!-- Sidebar -->
         <div class="sidebar @(sidebarOpen ? "open" : "")" id="sidebar">
@@ -264,11 +264,17 @@ else
 
     private async Task ShowFavorites()
     {
-        await PromptService.SetShowFavoritesOnlyAsync(true);
         if (isMobile)
         {
+            // Mobile: Filter to show only favorites
+            await PromptService.SetShowFavoritesOnlyAsync(true);
             sidebarOpen = false;
             StateHasChanged();
+        }
+        else
+        {
+            // Desktop: Show favorites modal
+            await PromptService.ShowFavoritesModalAsync();
         }
     }
 
@@ -303,5 +309,15 @@ else
     public void Dispose()
     {
         PromptService.StateChanged -= StateHasChanged;
+        
+        // Clean up resize listener to prevent memory leaks
+        try
+        {
+            _ = JSRuntime.InvokeVoidAsync("removeResizeListener", DotNetObjectReference.Create(this));
+        }
+        catch
+        {
+            // Ignore errors during cleanup
+        }
     }
 }

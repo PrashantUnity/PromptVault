@@ -21,11 +21,14 @@
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium @GetCategoryClasses(SelectedPrompt.Category)">
                         @GetCategoryName(SelectedPrompt.Category)
                     </span>
-                    @foreach (var tag in SelectedPrompt.Tags.Take(3))
+                    @if (SelectedPrompt.Tags != null)
                     {
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                            #@tag
-                        </span>
+                        @foreach (var tag in SelectedPrompt.Tags.Take(3))
+                        {
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                #@tag
+                            </span>
+                        }
                     }
                 </div>
 

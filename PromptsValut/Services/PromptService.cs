@@ -15,6 +15,7 @@ public class PromptService : IPromptService
     public event Action? StateChanged;
     public AppState State => _state;
     public bool ShowHelpModal { get; private set; } = false;
+    public bool ShowFavoritesModal { get; private set; } = false;
     public List<Prompt> Prompts => _state.Prompts.ToList();
     public List<Category> Categories => _state.Categories.ToList();
     public List<Prompt> FilteredPrompts 
@@ -68,9 +69,26 @@ public class PromptService : IPromptService
 
     public async Task InitializeAsync()
     {
-        await LoadStateFromStorageAsync();
-        await LoadDefaultDataAsync();
+        _state.IsLoading = true;
         NotifyStateChanged();
+        
+        try
+        {
+            await LoadStateFromStorageAsync();
+            await LoadDefaultDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PromptService: Error during initialization: {ex.Message}");
+            // Reset to default state on error
+            _state = new AppState();
+            await LoadDefaultDataAsync();
+        }
+        finally
+        {
+            _state.IsLoading = false;
+            NotifyStateChanged();
+        }
     }
 
     public async Task LoadDataAsync()
@@ -281,6 +299,20 @@ public class PromptService : IPromptService
     public async Task HideHelpModalAsync()
     {
         ShowHelpModal = false;
+        NotifyStateChanged();
+        await Task.CompletedTask;
+    }
+
+    public async Task ShowFavoritesModalAsync()
+    {
+        ShowFavoritesModal = true;
+        NotifyStateChanged();
+        await Task.CompletedTask;
+    }
+
+    public async Task HideFavoritesModalAsync()
+    {
+        ShowFavoritesModal = false;
         NotifyStateChanged();
         await Task.CompletedTask;
     }
@@ -565,21 +597,40 @@ public class PromptService : IPromptService
 
     public async Task RefreshExternalDataAsync()
     {
-        // Clear existing prompts (but keep user data like favorites and ratings)
-        var existingFavorites = _state.Favorites.ToList();
-        var existingRatings = _state.UserRatings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        
-        _state.Prompts.Clear();
-        
-        // Always load from external source
-        await LoadExternalDataAsync();
-        
-        // Restore user data
-        _state.Favorites = existingFavorites;
-        _state.UserRatings = existingRatings;
-        
-        await SaveStateToStorageAsync();
+        _state.IsLoading = true;
         NotifyStateChanged();
+        
+        try
+        {
+            // Clear existing prompts (but keep user data like favorites and ratings)
+            var existingFavorites = _state.Favorites.ToList();
+            var existingRatings = _state.UserRatings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            
+            _state.Prompts.Clear();
+            
+            // Always load from external source
+            var success = await LoadExternalDataAsync();
+            
+            if (!success)
+            {
+                Console.WriteLine("PromptService: Failed to load external data during refresh");
+            }
+            
+            // Restore user data
+            _state.Favorites = existingFavorites;
+            _state.UserRatings = existingRatings;
+            
+            await SaveStateToStorageAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PromptService: Error during refresh: {ex.Message}");
+        }
+        finally
+        {
+            _state.IsLoading = false;
+            NotifyStateChanged();
+        }
     }
 
 

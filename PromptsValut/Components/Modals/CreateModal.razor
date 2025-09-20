@@ -133,6 +133,10 @@
                 .Select(t => t.Trim())
                 .ToArray();
         }
+        else
+        {
+            newPrompt.Tags = Array.Empty<string>();
+        }
 
         await PromptService.AddPromptAsync(newPrompt);
         await CloseModal();
