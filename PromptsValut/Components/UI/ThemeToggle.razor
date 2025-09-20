@@ -1,0 +1,41 @@
+@using PromptsValut.Constants
+@inject IPromptService PromptService
+@inject IJSRuntime JSRuntime
+
+<button 
+    @onclick="ToggleTheme"
+    class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200 @(IsMobile ? "flex lg:hidden" : "hidden lg:flex")"
+    title="@(PromptService.State.Theme == "light" ? "Switch to dark mode" : "Switch to light mode")">
+    @if (PromptService.State.Theme == "light")
+    {
+        @((MarkupString)SvgIcons.GetIcon("moon", "h-5 w-5"))
+    }
+    else
+    {
+        @((MarkupString)SvgIcons.GetIcon("sun", "h-5 w-5"))
+    }
+    @if (IsMobile)
+    {
+        <span class="text-sm ml-2">@(PromptService.State.Theme == "light" ? "Dark" : "Light")</span>
+    }
+</button>
+
+@code {
+    [Parameter] public bool IsMobile { get; set; } = false;
+    [Parameter] public EventCallback OnToggleTheme { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PromptService.StateChanged += StateHasChanged;
+    }
+
+    private async Task ToggleTheme()
+    {
+        await OnToggleTheme.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= StateHasChanged;
+    }
+}
