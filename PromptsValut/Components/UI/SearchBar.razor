@@ -24,6 +24,7 @@
     {
         searchQuery = PromptService.State.SearchQuery;
         PromptService.StateChanged += StateHasChanged;
+        await Task.CompletedTask;
     }
 
     private async Task HandleKeyUp(KeyboardEventArgs e)

@@ -163,12 +163,14 @@ public class PromptService : IPromptService
     {
         _state.SearchQuery = query;
         NotifyStateChanged();
+        await Task.CompletedTask;
     }
 
     public async Task SetSelectedCategoryAsync(string category)
     {
         _state.SelectedCategory = category;
         NotifyStateChanged();
+        await Task.CompletedTask;
     }
 
     public async Task SetThemeAsync(string theme)
@@ -267,12 +269,14 @@ public class PromptService : IPromptService
     {
         ShowHelpModal = true;
         NotifyStateChanged();
+        await Task.CompletedTask;
     }
 
     public async Task HideHelpModalAsync()
     {
         ShowHelpModal = false;
         NotifyStateChanged();
+        await Task.CompletedTask;
     }
 
     private async Task LoadStateFromStorageAsync()
@@ -483,6 +487,7 @@ public class PromptService : IPromptService
         };
 
         _state.Prompts.AddRange(defaultPrompts);
+        await Task.CompletedTask;
     }
 
     private Task LoadDefaultCategoriesAsync()

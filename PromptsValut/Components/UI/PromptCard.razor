@@ -93,6 +93,7 @@
     protected override async Task OnInitializedAsync()
     {
         PromptService.StateChanged += StateHasChanged;
+        await Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

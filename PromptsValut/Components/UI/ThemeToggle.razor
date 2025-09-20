@@ -27,6 +27,7 @@
     protected override async Task OnInitializedAsync()
     {
         PromptService.StateChanged += StateHasChanged;
+        await Task.CompletedTask;
     }
 
     private async Task ToggleTheme()

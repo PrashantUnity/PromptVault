@@ -66,10 +66,10 @@
                                 <div class="p-3 bg-muted rounded-lg">
                                     <h4 class="font-medium mb-2">Import Preview:</h4>
                                     <div class="text-sm text-muted-foreground">
-                                        <div>Prompts: @importPreviewData.Prompts?.Count ?? 0</div>
-                                        <div>Favorites: @importPreviewData.Favorites?.Count ?? 0</div>
-                                        <div>History: @importPreviewData.History?.Count ?? 0</div>
-                                        <div>Ratings: @importPreviewData.UserRatings?.Count ?? 0</div>
+                                        <div>Prompts: @(importPreviewData?.Prompts?.Count ?? 0)</div>
+                                        <div>Favorites: @(importPreviewData?.Favorites?.Count ?? 0)</div>
+                                        <div>History: @(importPreviewData?.History?.Count ?? 0)</div>
+                                        <div>Ratings: @(importPreviewData?.UserRatings?.Count ?? 0)</div>
                                     </div>
                                 </div>
                                 
@@ -161,7 +161,7 @@
 
     private async Task OnFileSelected(ChangeEventArgs e)
     {
-        var files = (IBrowserFile[])e.Value;
+        var files = (IBrowserFile[]?)e.Value;
         if (files?.Length > 0)
         {
             var file = files[0];
