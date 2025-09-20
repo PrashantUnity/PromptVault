@@ -1,92 +1,129 @@
 @inject IPromptService PromptService
 @inject IJSRuntime JSRuntime
+@inject IPlaceholderParserService PlaceholderParserService
 
 @if (IsVisible && SelectedPrompt != null)
 {
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @onclick="CloseModal">
-        <div class="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[90vh] mx-4" @onclick:stopPropagation="true">
-            <div class="p-6">
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] mx-4" @onclick:stopPropagation="true">
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-semibold">@SelectedPrompt.Title</h2>
-                    <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">@SelectedPrompt.Title</h2>
+                    <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <i data-lucide="x" class="h-5 w-5 text-gray-500"></i>
                     </button>
                 </div>
                 
-                <div class="space-y-4">
-                    <!-- Category and difficulty -->
-                    <div class="flex items-center gap-4">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium @GetCategoryClasses(SelectedPrompt.Category)">
-                            @GetCategoryName(SelectedPrompt.Category)
-                        </span>
-                        @if (!string.IsNullOrEmpty(SelectedPrompt.Difficulty))
-                        {
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetDifficultyClasses(SelectedPrompt.Difficulty)">
-                                @SelectedPrompt.Difficulty
-                            </span>
-                        }
-                    </div>
-
-                    <!-- Description -->
-                    @if (!string.IsNullOrEmpty(SelectedPrompt.Description))
+                <!-- Tags -->
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium @GetCategoryClasses(SelectedPrompt.Category)">
+                        @GetCategoryName(SelectedPrompt.Category)
+                    </span>
+                    @foreach (var tag in SelectedPrompt.Tags.Take(3))
                     {
-                        <div>
-                            <h3 class="text-lg font-medium mb-2">Description</h3>
-                            <p class="text-muted-foreground">@SelectedPrompt.Description</p>
-                        </div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                            #@tag
+                        </span>
                     }
+                </div>
 
-                    <!-- Content -->
-                    <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <h3 class="text-lg font-medium">Prompt Content</h3>
-                            <button @onclick="CopyContent" class="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
-                                <i data-lucide="copy" class="h-4 w-4 inline mr-1"></i>
-                                Copy
-                            </button>
-                        </div>
-                        <div class="bg-muted rounded-lg p-4 font-mono text-sm whitespace-pre-wrap max-h-96 overflow-y-auto">
+                <!-- Tabs and Edit Button -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                        <button @onclick="() => SetActiveTab(0)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(activeTab == 0 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
+                            <i data-lucide="file-text" class="h-4 w-4 mr-2"></i>
+                            Original Prompt
+                        </button>
+                        <button @onclick="() => SetActiveTab(1)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(activeTab == 1 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
+                            <i data-lucide="settings" class="h-4 w-4 mr-2"></i>
+                            Customize
+                        </button>
+                    </div>
+                    <button class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <i data-lucide="edit" class="h-4 w-4 mr-2"></i>
+                        Edit Prompt
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+                @if (activeTab == 0)
+                {
+                    <!-- Original Prompt Tab -->
+                    <!-- Prompt Content Section -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">PROMPT CONTENT</h3>
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap border border-gray-200 dark:border-gray-700">
                             @SelectedPrompt.Content
                         </div>
                     </div>
 
-                    <!-- Tags -->
-                    @if (SelectedPrompt.Tags.Any())
-                    {
-                        <div>
-                            <h3 class="text-lg font-medium mb-2">Tags</h3>
-                            <div class="flex flex-wrap gap-2">
-                                @foreach (var tag in SelectedPrompt.Tags)
-                                {
-                                    <span class="inline-flex items-center px-2 py-1 rounded text-sm bg-muted text-muted-foreground">
-                                        #@tag
-                                    </span>
-                                }
+                    <!-- Additional Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Description -->
+                        @if (!string.IsNullOrEmpty(SelectedPrompt.Description))
+                        {
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Description</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@SelectedPrompt.Description</p>
                             </div>
-                        </div>
-                    }
+                        }
+
+                        <!-- Difficulty -->
+                        @if (!string.IsNullOrEmpty(SelectedPrompt.Difficulty))
+                        {
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Difficulty</h4>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetDifficultyClasses(SelectedPrompt.Difficulty)">
+                                    @SelectedPrompt.Difficulty
+                                </span>
+                            </div>
+                        }
+
+                        <!-- Estimated Time -->
+                        @if (!string.IsNullOrEmpty(SelectedPrompt.EstimatedTime))
+                        {
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Estimated Time</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@SelectedPrompt.EstimatedTime</p>
+                            </div>
+                        }
+
+                        <!-- Author -->
+                        @if (!string.IsNullOrEmpty(SelectedPrompt.Author))
+                        {
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Author</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">@SelectedPrompt.Author</p>
+                            </div>
+                        }
+                    </div>
 
                     <!-- Placeholders -->
                     @if (SelectedPrompt.Placeholders.Any())
                     {
-                        <div>
-                            <h3 class="text-lg font-medium mb-2">Placeholders</h3>
+                        <div class="mt-6">
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Placeholders</h4>
                             <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
                                 <p class="text-sm text-yellow-800 dark:text-yellow-200 mb-2">
                                     Replace these placeholders with your specific information:
                                 </p>
-                                <ul class="list-disc list-inside space-y-1">
+                                <div class="flex flex-wrap gap-2">
                                     @foreach (var placeholder in SelectedPrompt.Placeholders)
                                     {
-                                        <li class="text-sm text-yellow-700 dark:text-yellow-300">[@placeholder]</li>
+                                        <span class="inline-flex items-center px-2 py-1 rounded text-sm bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200">
+                                            [@placeholder]
+                                        </span>
                                     }
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     }
 
                     <!-- Stats -->
-                    <div class="flex items-center gap-6 text-sm text-muted-foreground">
+                    <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center gap-1">
                             <i data-lucide="eye" class="h-4 w-4"></i>
                             <span>@SelectedPrompt.UsageCount uses</span>
@@ -103,19 +140,136 @@
                             <span>Created @SelectedPrompt.CreatedAt.ToString("MMM dd, yyyy")</span>
                         </div>
                     </div>
+                }
+                else
+                {
+                    <!-- Customize Tab -->
+                    <div class="space-y-6">
+                        @if (parsedFields?.Fields.Any() == true)
+                        {
+                            @foreach (var field in parsedFields.Fields)
+                            {
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-900 dark:text-white mb-1">
+                                        @field.Name
+                                        @if (field.Required)
+                                        {
+                                            <span class="text-red-500 ml-1">*</span>
+                                        }
+                                    </label>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">@field.Description</p>
+                                    
+                                    @if (field.Type == "textarea")
+                                    {
+                                        <textarea @bind="customizeValues[field.Id]" 
+                                                  class="w-full px-3 py-2 border @(validationErrors.ContainsKey(field.Id) ? "border-red-500 dark:border-red-400" : "border-gray-300 dark:border-gray-600") rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                  rows="3"
+                                                  placeholder="@field.Placeholder"></textarea>
+                                    }
+                                    else if (field.Type == "select" && field.Options?.Any() == true)
+                                    {
+                                        <select @bind="customizeValues[field.Id]" 
+                                                class="w-full px-3 py-2 border @(validationErrors.ContainsKey(field.Id) ? "border-red-500 dark:border-red-400" : "border-gray-300 dark:border-gray-600") rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="">Select an option</option>
+                                            @foreach (var option in field.Options)
+                                            {
+                                                <option value="@option">@option</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <input type="@GetInputType(field.Type)" 
+                                               @bind="customizeValues[field.Id]" 
+                                               class="w-full px-3 py-2 border @(validationErrors.ContainsKey(field.Id) ? "border-red-500 dark:border-red-400" : "border-gray-300 dark:border-gray-600") rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                               placeholder="@field.Placeholder" />
+                                    }
 
-                    <!-- Actions -->
-                    <div class="flex items-center gap-2 pt-4 border-t">
-                        <button @onclick="ToggleFavorite" class="px-4 py-2 rounded-md border @(IsFavorite ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100" : "border-border hover:bg-accent")">
-                            <i data-lucide="heart" class="h-4 w-4 inline mr-2 @(IsFavorite ? "fill-current" : "")"></i>
-                            @(IsFavorite ? "Remove from Favorites" : "Add to Favorites")
-                        </button>
-                        <button @onclick="RatePrompt" class="px-4 py-2 rounded-md border border-border hover:bg-accent">
-                            <i data-lucide="star" class="h-4 w-4 inline mr-2"></i>
+                                    @if (validationErrors.ContainsKey(field.Id))
+                                    {
+                                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">@validationErrors[field.Id]</p>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-8">
+                                <p class="text-gray-500 dark:text-gray-400">No placeholders found in this prompt.</p>
+                            </div>
+                        }
+
+                        <!-- Generated Prompt Section -->
+                        @if (showGeneratedPrompt && !string.IsNullOrEmpty(generatedPrompt))
+                        {
+                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <i data-lucide="check-circle" class="h-5 w-5 text-green-500"></i>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Generated Prompt</h3>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                                        Ready to use
+                                    </span>
+                                </div>
+                                
+                                <div class="bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                                    <div class="font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                                        @generatedPrompt
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-3">
+                                    <button @onclick="CopyOriginalPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
+                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        Copy Original Prompt
+                                    </button>
+                                    <button @onclick="CopyGeneratedPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
+                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        Copy Generated Prompt
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-lg">
+                @if (activeTab == 0)
+                {
+                    <!-- Original Prompt Tab Actions -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <button @onclick="CopyContent" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                Copy Content
+                            </button>
+                            <button @onclick="ToggleFavorite" class="px-4 py-2 text-sm font-medium rounded-md border @(IsFavorite ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600")">
+                                <i data-lucide="heart" class="h-4 w-4 mr-2 @(IsFavorite ? "fill-current" : "")"></i>
+                                @(IsFavorite ? "Remove from Favorites" : "Add to Favorites")
+                            </button>
+                        </div>
+                        <button @onclick="RatePrompt" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                            <i data-lucide="star" class="h-4 w-4 mr-2"></i>
                             Rate Prompt
                         </button>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <!-- Customize Tab Actions -->
+                    <div class="flex items-center justify-between">
+                        <button @onclick="ResetCustomizeForm" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                            Reset
+                        </button>
+                        <button @onclick="GenerateCustomPrompt" 
+                                disabled="@(!IsFormValid())"
+                                class="px-6 py-2 text-sm font-medium text-white @(IsFormValid() ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-400 cursor-not-allowed") rounded-md flex items-center">
+                            <i data-lucide="settings" class="h-4 w-4 mr-2"></i>
+                            Generate Custom Prompt
+                        </button>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -127,11 +281,49 @@
 
     private Prompt? SelectedPrompt { get; set; }
     private bool IsFavorite => SelectedPrompt != null && PromptService.State.Favorites.Contains(SelectedPrompt.Id);
+    private int activeTab = 0;
+    private Dictionary<string, string> customizeValues = new();
+    private ParsedPlaceholders? parsedFields;
+    private string? generatedPrompt;
+    private bool showGeneratedPrompt = false;
+    private Dictionary<string, string> validationErrors = new();
 
     public void ShowPrompt(Prompt prompt)
     {
         SelectedPrompt = prompt;
         IsVisible = true;
+        activeTab = 0; // Reset to Original Prompt tab
+        ParsePromptPlaceholders();
+        InitializeCustomizeValues();
+        showGeneratedPrompt = false; // Reset generated prompt state
+        generatedPrompt = null;
+        validationErrors.Clear();
+        StateHasChanged();
+    }
+
+    private void ParsePromptPlaceholders()
+    {
+        if (SelectedPrompt != null)
+        {
+            parsedFields = PlaceholderParserService.ParsePlaceholders(SelectedPrompt.Content);
+        }
+    }
+
+    private void InitializeCustomizeValues()
+    {
+        customizeValues.Clear();
+        if (parsedFields?.Fields != null)
+        {
+            foreach (var field in parsedFields.Fields)
+            {
+                customizeValues[field.Id] = string.Empty;
+            }
+        }
+    }
+
+    private void SetActiveTab(int tabIndex)
+    {
+        activeTab = tabIndex;
         StateHasChanged();
     }
 
@@ -164,14 +356,113 @@
         await Task.CompletedTask;
     }
 
+    private void ResetCustomizeForm()
+    {
+        InitializeCustomizeValues();
+        showGeneratedPrompt = false;
+        generatedPrompt = null;
+        validationErrors.Clear();
+        StateHasChanged();
+    }
+
+    private async Task GenerateCustomPrompt()
+    {
+        if (SelectedPrompt == null || parsedFields == null) return;
+
+        // Validate form before generating
+        if (!ValidateForm())
+        {
+            await Task.Delay(1);
+            StateHasChanged();
+            return;
+        }
+
+        // Generate customized prompt by replacing placeholders
+        generatedPrompt = PlaceholderParserService.ReplacePlaceholders(parsedFields.ProcessedContent, customizeValues);
+        showGeneratedPrompt = true;
+        
+        await Task.Delay(1); // Small delay to make it truly async
+        StateHasChanged();
+    }
+
+    private bool ValidateForm()
+    {
+        validationErrors.Clear();
+        bool isValid = true;
+
+        if (parsedFields?.Fields != null)
+        {
+            foreach (var field in parsedFields.Fields)
+            {
+                if (field.Required)
+                {
+                    var value = customizeValues.GetValueOrDefault(field.Id, string.Empty);
+                    if (string.IsNullOrWhiteSpace(value))
+                    {
+                        validationErrors[field.Id] = $"{field.Name} is required";
+                        isValid = false;
+                    }
+                }
+            }
+        }
+
+        return isValid;
+    }
+
+    private bool IsFormValid()
+    {
+        if (parsedFields?.Fields == null) return false;
+
+        foreach (var field in parsedFields.Fields)
+        {
+            if (field.Required)
+            {
+                var value = customizeValues.GetValueOrDefault(field.Id, string.Empty);
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private async Task CopyOriginalPrompt()
+    {
+        if (SelectedPrompt != null)
+        {
+            await JSRuntime.InvokeVoidAsync("copyToClipboard", SelectedPrompt.Content);
+        }
+    }
+
+    private async Task CopyGeneratedPrompt()
+    {
+        if (generatedPrompt != null)
+        {
+            await JSRuntime.InvokeVoidAsync("copyToClipboard", generatedPrompt);
+        }
+    }
+
+    private string GetInputType(string fieldType)
+    {
+        return fieldType switch
+        {
+            "email" => "email",
+            "url" => "url",
+            "number" => "number",
+            _ => "text"
+        };
+    }
+
     private string GetCategoryClasses(string category)
     {
         return category switch
         {
-            "marketing" => "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300",
-            "development" => "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+            "marketing" => "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+            "development" => "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300",
             "creative-writing" => "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300",
-            "business" => "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300",
+            "business" => "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-300",
             "education" => "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300",
             "technology" => "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300",
             "fun" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
