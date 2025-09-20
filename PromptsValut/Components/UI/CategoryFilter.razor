@@ -38,10 +38,10 @@
         
         if (isActive)
         {
-            return $"{baseClasses} bg-sidebar-primary text-sidebar-primary-foreground";
+            return $"{baseClasses} bg-blue-600 text-white shadow-md";
         }
         
-        return $"{baseClasses} hover:bg-sidebar-accent hover:text-sidebar-foreground";
+        return $"{baseClasses} hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100";
     }
 
     private int GetCategoryCount(string categoryId)
