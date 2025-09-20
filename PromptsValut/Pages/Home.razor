@@ -173,7 +173,7 @@
         var prompt = await PromptService.GetPromptByIdAsync(promptId);
         if (prompt != null && promptDetailModal != null)
         {
-            promptDetailModal.ShowPrompt(prompt);
+            await promptDetailModal.ShowPrompt(prompt);
             showPromptDetail = true;
             StateHasChanged();
         }
@@ -184,7 +184,7 @@
         await PromptService.AddToHistoryAsync(prompt.Id);
         if (promptDetailModal != null)
         {
-            promptDetailModal.ShowPrompt(prompt);
+            await promptDetailModal.ShowPrompt(prompt);
             showPromptDetail = true;
             StateHasChanged();
         }

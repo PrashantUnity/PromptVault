@@ -31,18 +31,20 @@
                 <!-- Tabs and Edit Button -->
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-                        <button @onclick="() => SetActiveTab(0)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(activeTab == 0 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
+                        <button @onclick="async () => await SetActiveTab(0)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(activeTab == 0 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
                             <i data-lucide="file-text" class="h-4 w-4 mr-2"></i>
                             Original Prompt
                         </button>
-                        <button @onclick="() => SetActiveTab(1)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(activeTab == 1 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
+                        <button @onclick="async () => await SetActiveTab(1)" 
+                                disabled="@isEditingPrompt"
+                                class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(isEditingPrompt ? "text-gray-400 dark:text-gray-600 cursor-not-allowed" : (activeTab == 1 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"))">
                             <i data-lucide="settings" class="h-4 w-4 mr-2"></i>
-                            Customize
+                            Customize @(isEditingPrompt ? "(Disabled while editing)" : "")
                         </button>
                     </div>
-                    <button class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <i data-lucide="edit" class="h-4 w-4 mr-2"></i>
-                        Edit Prompt
+                    <button @onclick="async () => await ToggleEditMode()" class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <i data-lucide="@(isEditingPrompt ? "x" : "edit")" class="h-4 w-4 mr-2"></i>
+                        @(isEditingPrompt ? "Cancel" : "Edit Prompt")
                     </button>
                 </div>
             </div>
@@ -55,48 +57,35 @@
                     <!-- Prompt Content Section -->
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">PROMPT CONTENT</h3>
-                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap border border-gray-200 dark:border-gray-700">
-                            @SelectedPrompt.Content
-                        </div>
-                    </div>
-
-                    <!-- Additional Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Description -->
-                        @if (!string.IsNullOrEmpty(SelectedPrompt.Description))
+                        @if (isEditingPrompt)
                         {
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Description</h4>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">@SelectedPrompt.Description</p>
-                            </div>
-                        }
-
-                        <!-- Difficulty -->
-                        @if (!string.IsNullOrEmpty(SelectedPrompt.Difficulty))
-                        {
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Difficulty</h4>
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetDifficultyClasses(SelectedPrompt.Difficulty)">
-                                    @SelectedPrompt.Difficulty
+                            <div class="space-y-3">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Edit the prompt content below:</p>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                                    Editing Mode
                                 </span>
+                                <textarea @bind="editedPromptContent" 
+                                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                                          rows="8"
+                                          placeholder="Enter your prompt content here..."></textarea>
+                                
+                                <!-- Copy buttons for edited prompt -->
+                                <div class="flex gap-3 mt-4">
+                                    <button @onclick="CopyEditedPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
+                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        Copy Edited Prompt
+                                    </button>
+                                    <button @onclick="CopyOriginalPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
+                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        Copy Original Prompt
+                                    </button>
+                                </div>
                             </div>
                         }
-
-                        <!-- Estimated Time -->
-                        @if (!string.IsNullOrEmpty(SelectedPrompt.EstimatedTime))
+                        else
                         {
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Estimated Time</h4>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">@SelectedPrompt.EstimatedTime</p>
-                            </div>
-                        }
-
-                        <!-- Author -->
-                        @if (!string.IsNullOrEmpty(SelectedPrompt.Author))
-                        {
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Author</h4>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">@SelectedPrompt.Author</p>
+                            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap border border-gray-200 dark:border-gray-700">
+                                @SelectedPrompt.Content
                             </div>
                         }
                     </div>
@@ -122,24 +111,7 @@
                         </div>
                     }
 
-                    <!-- Stats -->
-                    <div class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center gap-1">
-                            <i data-lucide="eye" class="h-4 w-4"></i>
-                            <span>@SelectedPrompt.UsageCount uses</span>
-                        </div>
-                        @if (SelectedPrompt.AverageRating > 0)
-                        {
-                            <div class="flex items-center gap-1">
-                                <i data-lucide="star" class="h-4 w-4 text-yellow-400 fill-current"></i>
-                                <span>@SelectedPrompt.AverageRating.ToString("F1") rating</span>
-                            </div>
-                        }
-                        <div class="flex items-center gap-1">
-                            <i data-lucide="calendar" class="h-4 w-4"></i>
-                            <span>Created @SelectedPrompt.CreatedAt.ToString("MMM dd, yyyy")</span>
-                        </div>
-                    </div>
+                    
                 }
                 else
                 {
@@ -237,23 +209,40 @@
             <div class="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-lg">
                 @if (activeTab == 0)
                 {
-                    <!-- Original Prompt Tab Actions -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <button @onclick="CopyContent" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
-                                Copy Content
+                    @if (isEditingPrompt)
+                    {
+                        <!-- Edit Mode Actions -->
+                        <div class="flex items-center justify-between">
+                            <button @onclick="CancelEdit" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i>
+                                Cancel
                             </button>
-                            <button @onclick="ToggleFavorite" class="px-4 py-2 text-sm font-medium rounded-md border @(IsFavorite ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600")">
-                                <i data-lucide="heart" class="h-4 w-4 mr-2 @(IsFavorite ? "fill-current" : "")"></i>
-                                @(IsFavorite ? "Remove from Favorites" : "Add to Favorites")
+                            <button @onclick="SavePrompt" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md">
+                                <i data-lucide="save" class="h-4 w-4 mr-2"></i>
+                                Save
                             </button>
                         </div>
-                        <button @onclick="RatePrompt" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                            <i data-lucide="star" class="h-4 w-4 mr-2"></i>
-                            Rate Prompt
-                        </button>
-                    </div>
+                    }
+                    else
+                    {
+                        <!-- Original Prompt Tab Actions -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <button @onclick="CopyContent" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                    Copy Content
+                                </button>
+                                <button @onclick="ToggleFavorite" class="px-4 py-2 text-sm font-medium rounded-md border @(IsFavorite ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600")">
+                                    <i data-lucide="heart" class="h-4 w-4 mr-2 @(IsFavorite ? "fill-current" : "")"></i>
+                                    @(IsFavorite ? "Remove from Favorites" : "Add to Favorites")
+                                </button>
+                            </div>
+                            <button @onclick="RatePrompt" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <i data-lucide="star" class="h-4 w-4 mr-2"></i>
+                                Rate Prompt
+                            </button>
+                        </div>
+                    }
                 }
                 else
                 {
@@ -287,8 +276,10 @@
     private string? generatedPrompt;
     private bool showGeneratedPrompt = false;
     private Dictionary<string, string> validationErrors = new();
+    private bool isEditingPrompt = false;
+    private string editedPromptContent = string.Empty;
 
-    public void ShowPrompt(Prompt prompt)
+    public async Task ShowPrompt(Prompt prompt)
     {
         SelectedPrompt = prompt;
         IsVisible = true;
@@ -298,7 +289,13 @@
         showGeneratedPrompt = false; // Reset generated prompt state
         generatedPrompt = null;
         validationErrors.Clear();
+        isEditingPrompt = false; // Reset editing state
+        editedPromptContent = string.Empty;
         StateHasChanged();
+        
+        // Initialize icons after the modal is rendered
+        await Task.Delay(1); // Small delay to ensure DOM is updated
+        await JSRuntime.InvokeVoidAsync("initializeIcons");
     }
 
     private void ParsePromptPlaceholders()
@@ -321,10 +318,22 @@
         }
     }
 
-    private void SetActiveTab(int tabIndex)
+    private async Task SetActiveTab(int tabIndex)
     {
         activeTab = tabIndex;
+        
+        // If switching to Customize tab, refresh the parsing to ensure we have the latest content
+        if (tabIndex == 1)
+        {
+            ParsePromptPlaceholders();
+            InitializeCustomizeValues();
+        }
+        
         StateHasChanged();
+        
+        // Initialize icons after tab content is rendered
+        await Task.Delay(1);
+        await JSRuntime.InvokeVoidAsync("initializeIcons");
     }
 
     private async Task CloseModal()
@@ -486,5 +495,69 @@
     private string GetCategoryName(string category)
     {
         return PromptService.State.Categories.FirstOrDefault(c => c.Id == category)?.Name ?? category;
+    }
+
+    private async Task ToggleEditMode()
+    {
+        if (isEditingPrompt)
+        {
+            // Cancel editing
+            CancelEdit();
+        }
+        else
+        {
+            // Start editing
+            await StartEdit();
+        }
+    }
+
+    private async Task StartEdit()
+    {
+        if (SelectedPrompt != null)
+        {
+            isEditingPrompt = true;
+            editedPromptContent = SelectedPrompt.Content;
+            StateHasChanged();
+            
+            // Initialize icons after edit mode content is rendered
+            await Task.Delay(1);
+            await JSRuntime.InvokeVoidAsync("initializeIcons");
+        }
+    }
+
+    private void CancelEdit()
+    {
+        isEditingPrompt = false;
+        editedPromptContent = string.Empty;
+        StateHasChanged();
+    }
+
+    private async Task SavePrompt()
+    {
+        if (SelectedPrompt != null && !string.IsNullOrWhiteSpace(editedPromptContent))
+        {
+            // Update the prompt content
+            SelectedPrompt.Content = editedPromptContent.Trim();
+            
+            // Save to service (this will update in memory, storage, and notify state change)
+            await PromptService.UpdatePromptAsync(SelectedPrompt);
+            
+            // Re-parse placeholders with updated content
+            ParsePromptPlaceholders();
+            InitializeCustomizeValues();
+            
+            // Exit edit mode
+            isEditingPrompt = false;
+            editedPromptContent = string.Empty;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CopyEditedPrompt()
+    {
+        if (!string.IsNullOrEmpty(editedPromptContent))
+        {
+            await JSRuntime.InvokeVoidAsync("copyToClipboard", editedPromptContent);
+        }
     }
 }
