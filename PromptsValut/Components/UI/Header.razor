@@ -25,6 +25,9 @@
                 
                 <!-- Right: Controls -->
                 <div class="flex items-center gap-2">
+                    <button @onclick="RefreshData" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm" title="Refresh External Data">
+                        @((MarkupString)SvgIcons.GetIcon("refresh", "h-4 w-4 text-gray-700 dark:text-gray-300"))
+                    </button>
                     <button @onclick="ShowHelp" class="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm" title="Help">
                         @((MarkupString)SvgIcons.GetIcon("help", "h-4 w-4 text-gray-700 dark:text-gray-300"))
                     </button>
@@ -63,6 +66,9 @@
 
             <!-- Right section: Controls -->
             <div class="flex items-center gap-2">
+                <button @onclick="RefreshData" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200" title="Refresh External Data">
+                    @((MarkupString)SvgIcons.GetIcon("refresh", "h-5 w-5"))
+                </button>
                 <button @onclick="ShowHelp" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200" title="How to use PromptVault">
                     @((MarkupString)SvgIcons.GetIcon("help", "h-5 w-5"))
                 </button>
@@ -97,5 +103,8 @@
         await PromptService.SetSearchQueryAsync(searchQuery);
     }
 
-    // SVG icons are inline - no initialization needed
+    private async Task RefreshData()
+    {
+        await PromptService.RefreshExternalDataAsync();
+    }
 }

@@ -12,5 +12,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
 builder.Services.AddScoped<IPromptService, PromptService>();
 builder.Services.AddScoped<IPlaceholderParserService, PlaceholderParserService>();
+builder.Services.AddHttpClient();
 
 await builder.Build().RunAsync();

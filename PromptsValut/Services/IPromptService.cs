@@ -34,4 +34,5 @@ public interface IPromptService
     Task<List<Prompt>> GetHistoryAsync();
     Task ShowHelpModalAsync();
     Task HideHelpModalAsync();
+    Task RefreshExternalDataAsync();
 }

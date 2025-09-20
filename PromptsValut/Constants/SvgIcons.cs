@@ -166,6 +166,13 @@ public static class SvgIcons
         <path d=""M12 2C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z""></path>
     </svg>";
 
+    public const string Refresh = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8""></path>
+        <path d=""M21 3v5h-5""></path>
+        <path d=""M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16""></path>
+        <path d=""M3 21v-5h5""></path>
+    </svg>";
+
     // Method to get icon with custom class
     public static string GetIcon(string iconName, string customClass = "")
     {
@@ -195,6 +202,7 @@ public static class SvgIcons
             "play" => Play.Replace("h-4 w-4", customClass),
             "code" => Code.Replace("h-4 w-4", customClass),
             "lightbulb" => Lightbulb.Replace("h-4 w-4", customClass),
+            "refresh" => Refresh.Replace("h-4 w-4", customClass),
             _ => ""
         };
     }
