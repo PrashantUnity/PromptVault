@@ -1,16 +1,32 @@
-// Theme management
+// Theme management with error handling
 window.setTheme = (theme) => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-        root.classList.add('dark');
-    } else {
-        root.classList.remove('dark');
+    try {
+        const root = document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+        localStorage.setItem('theme', theme);
+    } catch (error) {
+        console.error('Error setting theme:', error);
+        // Fallback: just apply the theme without saving
+        const root = document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
     }
-    localStorage.setItem('theme', theme);
 };
 
 window.getTheme = () => {
-    return localStorage.getItem('theme') || 'light';
+    try {
+        return localStorage.getItem('theme') || 'light';
+    } catch (error) {
+        console.error('Error getting theme:', error);
+        return 'light';
+    }
 };
 
 window.toggleTheme = () => {
@@ -142,5 +158,45 @@ window.removeResizeListener = (dotNetObjectRef) => {
         const handler = window._resizeHandlers.get(dotNetObjectRef);
         window.removeEventListener('resize', handler);
         window._resizeHandlers.delete(dotNetObjectRef);
+    }
+};
+
+// Local storage debugging utilities
+window.debugLocalStorage = () => {
+    try {
+        const keys = Object.keys(localStorage);
+        console.log('Local Storage Contents:');
+        keys.forEach(key => {
+            const value = localStorage.getItem(key);
+            console.log(`${key}:`, value);
+        });
+        return keys;
+    } catch (error) {
+        console.error('Error accessing localStorage:', error);
+        return [];
+    }
+};
+
+window.clearLocalStorage = () => {
+    try {
+        localStorage.clear();
+        console.log('Local storage cleared');
+        return true;
+    } catch (error) {
+        console.error('Error clearing localStorage:', error);
+        return false;
+    }
+};
+
+// Check if localStorage is available
+window.isLocalStorageAvailable = () => {
+    try {
+        const test = '__localStorage_test__';
+        localStorage.setItem(test, test);
+        localStorage.removeItem(test);
+        return true;
+    } catch (error) {
+        console.error('localStorage is not available:', error);
+        return false;
     }
 };
