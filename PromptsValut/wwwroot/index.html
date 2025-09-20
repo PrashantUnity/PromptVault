@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PromptVault - AI Prompt Library</title>
-    <base href="/" />
+    <base href="/PromptsValut/" />
     <link rel="preload" id="webassembly" />
     
     <!-- Tailwind CSS -->
@@ -68,23 +68,374 @@
     <script src="js/app.js"></script>
     
     <script type="importmap"></script>
-</head>
-
-<body>
-    <div id="app">
-        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-            <div style="font-size: 18px; margin-bottom: 10px;">Loading PromptVault...</div>
-            <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-        </div>
-    </div>
-    <script src="_framework/blazor.webassembly.js"></script>
-    
     <style>
+        /* Loading Container */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        
+        .loading-background {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .loading-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        
+        /* Logo Animation */
+        .logo-container {
+            position: relative;
+            margin: 0 auto 2rem;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .logo-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 3;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .logo-inner {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo-ring {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 140px;
+            height: 140px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #ff6b6b;
+            animation: spin 2s linear infinite;
+            z-index: 2;
+        }
+        
+        .logo-ring-2 {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 160px;
+            height: 160px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            border-right-color: #4ecdc4;
+            animation: spin 3s linear infinite reverse;
+            z-index: 1;
+        }
+        
+        /* Text Animation */
+        .loading-text {
+            margin-bottom: 2rem;
+        }
+        
+        .loading-title {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .loading-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 300;
+        }
+        
+        .loading-dots {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .dot {
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+        
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        .dot:nth-child(4) { animation-delay: 0.6s; }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 300px;
+            margin: 0 auto;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 200% 100%;
+            border-radius: 2px;
+            animation: progressMove 2s ease-in-out infinite;
+        }
+        
+        /* Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .particle:nth-child(1) {
+            top: 20%;
+            left: 20%;
+            animation-delay: 0s;
+        }
+        
+        .particle:nth-child(2) {
+            top: 30%;
+            right: 20%;
+            animation-delay: 1s;
+        }
+        
+        .particle:nth-child(3) {
+            bottom: 30%;
+            left: 30%;
+            animation-delay: 2s;
+        }
+        
+        .particle:nth-child(4) {
+            bottom: 20%;
+            right: 30%;
+            animation-delay: 3s;
+        }
+        
+        .particle:nth-child(5) {
+            top: 50%;
+            left: 10%;
+            animation-delay: 4s;
+        }
+        
+        .particle:nth-child(6) {
+            top: 60%;
+            right: 10%;
+            animation-delay: 5s;
+        }
+        
+        /* Keyframe Animations */
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes progressMove {
+            0% { 
+                width: 0%;
+                background-position: 0% 50%;
+            }
+            50% { 
+                width: 100%;
+                background-position: 100% 50%;
+            }
+            100% { 
+                width: 0%;
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.2);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo-container {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-circle {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .logo-inner {
+                width: 75px;
+                height: 75px;
+            }
+            
+            .logo-text {
+                font-size: 1.5rem;
+            }
+            
+            .logo-ring {
+                width: 120px;
+                height: 120px;
+                top: -10px;
+                left: -10px;
+            }
+            
+            .logo-ring-2 {
+                width: 140px;
+                height: 140px;
+                top: -20px;
+                left: -20px;
+            }
+            
+            .loading-title {
+                font-size: 2rem;
+            }
+            
+            .progress-container {
+                width: 250px;
+            }
+        }
     </style>
+</head>
+
+<body>
+
+    <div id="app">
+        <!-- Amazing Loading Animation -->
+        <div class="loading-container">
+            <div class="loading-background">
+                <div class="loading-content">
+                    <!-- Animated Logo/Icon -->
+                    <div class="logo-container">
+                        <div class="logo-circle">
+                            <div class="logo-inner">
+                                <div class="logo-text">PV</div>
+                            </div>
+                        </div>
+                        <div class="logo-ring"></div>
+                        <div class="logo-ring-2"></div>
+                    </div>
+                    
+                    <!-- Loading Text -->
+                    <div class="loading-text">
+                        <span class="loading-title">PromptVault</span>
+                        <div class="loading-subtitle">
+                            <span class="loading-dots">Loading</span>
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Floating Particles -->
+                    <div class="particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    
+    
 </body>
 
 </html>
