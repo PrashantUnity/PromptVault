@@ -1,0 +1,223 @@
+@using PromptsChat.Models
+@using PromptsChat.Services
+@inject IPromptService PromptService
+@inject IJSRuntime JSRuntime
+
+@if (IsVisible)
+{
+    <div class="modal" @onclick="CloseModal">
+        <div class="modal-content max-w-4xl w-full max-h-[90vh]" @onclick:stopPropagation="true">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-semibold flex items-center gap-2">
+                        <i data-lucide="download" class="h-6 w-6 text-orange-500"></i>
+                        Export / Import Data
+                    </h2>
+                    <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-6">
+                    <!-- Export Section -->
+                    <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="upload" class="h-5 w-5 text-green-600"></i>
+                            Export Data
+                        </h3>
+                        <p class="text-sm text-muted-foreground mb-4">
+                            Download your prompts, favorites, ratings, and history as a JSON file for backup or sharing.
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <button @onclick="ExportData" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                <i data-lucide="download" class="h-4 w-4 inline mr-2"></i>
+                                Export All Data
+                            </button>
+                            <div class="text-sm text-muted-foreground">
+                                <div>Prompts: @PromptService.Prompts.Count</div>
+                                <div>Favorites: @PromptService.State.Favorites.Count</div>
+                                <div>History: @PromptService.State.History.Count</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Section -->
+                    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="download" class="h-5 w-5 text-blue-600"></i>
+                            Import Data
+                        </h3>
+                        <p class="text-sm text-muted-foreground mb-4">
+                            Upload a JSON file to restore your data or import prompts from another PromptVault instance.
+                        </p>
+                        <div class="space-y-4">
+                            <div>
+                                <input type="file" @ref="fileInput" @onchange="OnFileSelected" accept=".json" class="hidden" />
+                                <button @onclick="SelectFile" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                                    <i data-lucide="upload" class="h-4 w-4 inline mr-2"></i>
+                                    Select File
+                                </button>
+                                @if (!string.IsNullOrEmpty(selectedFileName))
+                                {
+                                    <span class="ml-2 text-sm text-muted-foreground">@selectedFileName</span>
+                                }
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(importPreview))
+                            {
+                                <div class="p-3 bg-muted rounded-lg">
+                                    <h4 class="font-medium mb-2">Import Preview:</h4>
+                                    <div class="text-sm text-muted-foreground">
+                                        <div>Prompts: @importPreviewData.Prompts?.Count ?? 0</div>
+                                        <div>Favorites: @importPreviewData.Favorites?.Count ?? 0</div>
+                                        <div>History: @importPreviewData.History?.Count ?? 0</div>
+                                        <div>Ratings: @importPreviewData.UserRatings?.Count ?? 0</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center gap-3">
+                                    <button @onclick="ImportData" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                                        <i data-lucide="check" class="h-4 w-4 inline mr-2"></i>
+                                        Import Data
+                                    </button>
+                                    <button @onclick="CancelImport" class="px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors">
+                                        Cancel
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Clear Data Section -->
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="trash-2" class="h-5 w-5 text-red-600"></i>
+                            Clear All Data
+                        </h3>
+                        <p class="text-sm text-muted-foreground mb-4">
+                            Permanently delete all your prompts, favorites, ratings, and history. This action cannot be undone.
+                        </p>
+                        <button @onclick="ShowClearConfirmation" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                            <i data-lucide="trash-2" class="h-4 w-4 inline mr-2"></i>
+                            Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Clear Confirmation Modal -->
+@if (showClearConfirmation)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60" @onclick="HideClearConfirmation">
+        <div class="bg-card border border-border rounded-lg max-w-md w-full mx-4" @onclick:stopPropagation="true">
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="h-5 w-5 text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold">Clear All Data</h3>
+                </div>
+                <p class="text-muted-foreground mb-6">
+                    Are you sure you want to permanently delete all your data? This action cannot be undone.
+                </p>
+                <div class="flex items-center justify-end gap-3">
+                    <button @onclick="HideClearConfirmation" class="px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors">
+                        Cancel
+                    </button>
+                    <button @onclick="ClearAllData" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        Yes, Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private ElementReference fileInput;
+    private string selectedFileName = "";
+    private string importPreview = "";
+    private ExportData? importPreviewData;
+    private bool showClearConfirmation = false;
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task ExportData()
+    {
+        await PromptService.ExportDataAsync();
+    }
+
+    private async Task SelectFile()
+    {
+        await JSRuntime.InvokeVoidAsync("clickFileInput", fileInput);
+    }
+
+    private async Task OnFileSelected(ChangeEventArgs e)
+    {
+        var files = (IBrowserFile[])e.Value;
+        if (files?.Length > 0)
+        {
+            var file = files[0];
+            selectedFileName = file.Name;
+            
+            using var stream = file.OpenReadStream();
+            using var reader = new StreamReader(stream);
+            importPreview = await reader.ReadToEndAsync();
+            
+            try
+            {
+                importPreviewData = System.Text.Json.JsonSerializer.Deserialize<ExportData>(importPreview);
+            }
+            catch
+            {
+                importPreview = "";
+                importPreviewData = null;
+                selectedFileName = "Invalid JSON file";
+            }
+            
+            StateHasChanged();
+        }
+    }
+
+    private async Task ImportData()
+    {
+        if (!string.IsNullOrEmpty(importPreview) && importPreviewData != null)
+        {
+            await PromptService.ImportDataAsync(importPreview);
+            await CloseModal();
+        }
+    }
+
+    private void CancelImport()
+    {
+        selectedFileName = "";
+        importPreview = "";
+        importPreviewData = null;
+    }
+
+    private void ShowClearConfirmation()
+    {
+        showClearConfirmation = true;
+    }
+
+    private void HideClearConfirmation()
+    {
+        showClearConfirmation = false;
+    }
+
+    private async Task ClearAllData()
+    {
+        await PromptService.ClearDataAsync();
+        showClearConfirmation = false;
+        await CloseModal();
+    }
+}

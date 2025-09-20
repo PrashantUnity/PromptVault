@@ -1,0 +1,196 @@
+@using PromptsChat.Models
+@using PromptsChat.Services
+@inject IPromptService PromptService
+@inject IJSRuntime JSRuntime
+
+@if (IsVisible)
+{
+    <div class="modal" @onclick="CloseModal">
+        <div class="modal-content max-w-6xl w-full max-h-[90vh]" @onclick:stopPropagation="true">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-2xl font-semibold flex items-center gap-2">
+                        <i data-lucide="heart" class="h-6 w-6 text-red-500"></i>
+                        My Favorites (@PromptService.State.Favorites.Count)
+                    </h2>
+                    <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                
+                @if (favoritePrompts.Any())
+                {
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto">
+                        @foreach (var prompt in favoritePrompts)
+                        {
+                            <div class="prompt-card bg-card group rounded-lg border border-border p-4 cursor-pointer transform transition-all duration-300 hover:shadow-lg">
+                                <div class="space-y-3">
+                                    <div class="flex items-start justify-between">
+                                        <h3 class="text-lg font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-300 flex-1 pr-2">
+                                            @prompt.Title
+                                        </h3>
+                                        <button 
+                                            @onclick="() => RemoveFromFavorites(prompt.Id)"
+                                            class="p-1 rounded hover:bg-accent transition-colors duration-200 text-red-500"
+                                            title="Remove from favorites">
+                                            <i data-lucide="heart" class="h-4 w-4 fill-current"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetCategoryClasses(prompt.Category)">
+                                            @GetCategoryName(prompt.Category)
+                                        </span>
+                                        @if (!string.IsNullOrEmpty(prompt.Difficulty))
+                                        {
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetDifficultyClasses(prompt.Difficulty)">
+                                                @prompt.Difficulty
+                                            </span>
+                                        }
+                                    </div>
+                                    
+                                    <p class="text-sm text-muted-foreground line-clamp-2">
+                                        @prompt.Description
+                                    </p>
+                                    
+                                    <div class="flex items-center justify-between text-xs text-muted-foreground">
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex items-center gap-1">
+                                                <i data-lucide="eye" class="h-3 w-3"></i>
+                                                <span>@prompt.UsageCount</span>
+                                            </div>
+                                            @if (prompt.AverageRating > 0)
+                                            {
+                                                <div class="flex items-center gap-1">
+                                                    <i data-lucide="star" class="h-3 w-3 text-yellow-400 fill-current"></i>
+                                                    <span>@prompt.AverageRating.ToString("F1")</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between pt-2 border-t border-border">
+                                        <div class="flex items-center gap-1">
+                                            <button 
+                                                @onclick="() => CopyPrompt(prompt.Content)"
+                                                class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
+                                                title="Copy Prompt">
+                                                <i data-lucide="copy" class="h-4 w-4"></i>
+                                            </button>
+                                            <button 
+                                                @onclick="() => ViewPrompt(prompt)"
+                                                class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
+                                                title="View details">
+                                                <i data-lucide="eye" class="h-4 w-4"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="text-xs text-muted-foreground">
+                                            @prompt.CreatedAt.ToString("MMM dd, yyyy")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-12">
+                        <div class="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                            <i data-lucide="heart" class="w-12 h-12 text-muted-foreground"></i>
+                        </div>
+                        <p class="text-lg text-muted-foreground mb-2">No favorites yet</p>
+                        <p class="text-sm text-muted-foreground">Start adding prompts to your favorites to see them here.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<Prompt> OnViewPrompt { get; set; }
+
+    private List<Prompt> favoritePrompts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        PromptService.StateChanged += StateHasChanged;
+        await LoadFavorites();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible)
+        {
+            await LoadFavorites();
+        }
+    }
+
+    private async Task LoadFavorites()
+    {
+        favoritePrompts = await PromptService.GetFavoritesAsync();
+    }
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task RemoveFromFavorites(string promptId)
+    {
+        await PromptService.ToggleFavoriteAsync(promptId);
+        await LoadFavorites();
+    }
+
+    private async Task CopyPrompt(string content)
+    {
+        await JSRuntime.InvokeVoidAsync("copyToClipboard", content);
+    }
+
+    private async Task ViewPrompt(Prompt prompt)
+    {
+        await OnViewPrompt.InvokeAsync(prompt);
+    }
+
+    private string GetCategoryClasses(string category)
+    {
+        return category switch
+        {
+            "marketing" => "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300",
+            "development" => "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+            "creative-writing" => "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300",
+            "business" => "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300",
+            "education" => "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300",
+            "technology" => "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300",
+            "fun" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
+            "productivity" => "bg-violet-100 text-violet-800 dark:bg-violet-900/20 dark:text-violet-300",
+            "data-analysis" => "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-300",
+            _ => "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+        };
+    }
+
+    private string GetDifficultyClasses(string difficulty)
+    {
+        return difficulty switch
+        {
+            "beginner" => "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+            "intermediate" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
+            "advanced" => "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300",
+            _ => "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+        };
+    }
+
+    private string GetCategoryName(string category)
+    {
+        return PromptService.State.Categories.FirstOrDefault(c => c.Id == category)?.Name ?? category;
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= StateHasChanged;
+    }
+}

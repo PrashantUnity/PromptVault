@@ -1,0 +1,140 @@
+@if (IsVisible)
+{
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @onclick="CloseModal">
+        <div class="bg-card border border-border rounded-lg max-w-4xl w-full h-[90vh] mx-4 flex flex-col" @onclick:stopPropagation="true">
+            <div class="p-6 border-b">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-semibold flex items-center gap-2">
+                        <i data-lucide="help-circle" class="h-6 w-6 text-blue-500"></i>
+                        Help & Guide
+                    </h2>
+                    <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="space-y-6">
+                    <!-- Getting Started -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="play-circle" class="h-5 w-5 text-green-500"></i>
+                            Getting Started
+                        </h3>
+                        <div class="space-y-3 text-muted-foreground">
+                            <p>Welcome to PromptVault! This is your AI prompt library where you can discover, organize, and manage prompts for various tasks.</p>
+                            <ul class="list-disc list-inside space-y-1 ml-4">
+                                <li>Browse prompts by category using the sidebar filters</li>
+                                <li>Search for specific prompts using the search bar</li>
+                                <li>Click on any prompt to view details and copy the content</li>
+                                <li>Add prompts to your favorites for quick access</li>
+                                <li>Rate prompts to help others find quality content</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Features -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="star" class="h-5 w-5 text-yellow-500"></i>
+                            Key Features
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-muted rounded-lg">
+                                <h4 class="font-medium mb-2 flex items-center gap-2">
+                                    <i data-lucide="heart" class="h-4 w-4 text-red-500"></i>
+                                    Favorites
+                                </h4>
+                                <p class="text-sm text-muted-foreground">Save your favorite prompts for quick access and easy organization.</p>
+                            </div>
+                            <div class="p-4 bg-muted rounded-lg">
+                                <h4 class="font-medium mb-2 flex items-center gap-2">
+                                    <i data-lucide="history" class="h-4 w-4 text-purple-500"></i>
+                                    History
+                                </h4>
+                                <p class="text-sm text-muted-foreground">Track your recently viewed prompts for easy reference.</p>
+                            </div>
+                            <div class="p-4 bg-muted rounded-lg">
+                                <h4 class="font-medium mb-2 flex items-center gap-2">
+                                    <i data-lucide="plus" class="h-4 w-4 text-green-500"></i>
+                                    Create
+                                </h4>
+                                <p class="text-sm text-muted-foreground">Add your own custom prompts to the library.</p>
+                            </div>
+                            <div class="p-4 bg-muted rounded-lg">
+                                <h4 class="font-medium mb-2 flex items-center gap-2">
+                                    <i data-lucide="download" class="h-4 w-4 text-orange-500"></i>
+                                    Export/Import
+                                </h4>
+                                <p class="text-sm text-muted-foreground">Backup and share your prompt collections.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="grid-3x3" class="h-5 w-5 text-blue-500"></i>
+                            Categories
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                <i data-lucide="code" class="h-6 w-6 text-green-600 mx-auto mb-1"></i>
+                                <p class="text-sm font-medium">Development</p>
+                            </div>
+                            <div class="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                                <i data-lucide="file-text" class="h-6 w-6 text-purple-600 mx-auto mb-1"></i>
+                                <p class="text-sm font-medium">Documentation</p>
+                            </div>
+                            <div class="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                <i data-lucide="search" class="h-6 w-6 text-orange-600 mx-auto mb-1"></i>
+                                <p class="text-sm font-medium">Code Review</p>
+                            </div>
+                            <div class="text-center p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                                <i data-lucide="megaphone" class="h-6 w-6 text-pink-600 mx-auto mb-1"></i>
+                                <p class="text-sm font-medium">Marketing</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                            <i data-lucide="lightbulb" class="h-5 w-5 text-yellow-500"></i>
+                            Pro Tips
+                        </h3>
+                        <div class="space-y-2 text-muted-foreground">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="check-circle" class="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0"></i>
+                                <p class="text-sm">Use the search function to find prompts by keywords, tags, or content.</p>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="check-circle" class="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0"></i>
+                                <p class="text-sm">Replace placeholders in prompts with your specific information for better results.</p>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="check-circle" class="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0"></i>
+                                <p class="text-sm">Rate prompts to help the community identify high-quality content.</p>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="check-circle" class="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0"></i>
+                                <p class="text-sm">Export your favorites to create custom prompt collections.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

@@ -1,0 +1,46 @@
+@using PromptsChat.Services
+@using PromptsChat.Constants
+@inject IPromptService PromptService
+
+<div class="w-full">
+    <div class="relative group">
+        @((MarkupString)SvgIcons.GetIcon("search", "absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-primary transition-colors duration-300"))
+        <input 
+            type="text" 
+            @bind="searchQuery" 
+            @bind:event="oninput"
+            @onkeyup="HandleKeyUp"
+            placeholder="Search prompts..." 
+            class="pl-10 pr-4 w-full h-9 lg:h-10 rounded-md border border-input bg-card focus:ring-2 focus:ring-ring transition-all duration-300 hover:border-primary/50 focus:border-primary text-sm" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<string> OnSearchChanged { get; set; }
+    
+    private string searchQuery = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        searchQuery = PromptService.State.SearchQuery;
+        PromptService.StateChanged += StateHasChanged;
+    }
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await Search();
+        }
+    }
+
+    private async Task Search()
+    {
+        await OnSearchChanged.InvokeAsync(searchQuery);
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= StateHasChanged;
+    }
+}

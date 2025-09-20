@@ -1,0 +1,63 @@
+@using PromptsChat.Models
+@using PromptsChat.Services
+@inject IPromptService PromptService
+
+<div class="mt-6">
+    <h2 class="text-xs font-semibold text-sidebar-foreground uppercase tracking-wider mb-3 px-2">
+        Categories
+    </h2>
+    <div class="space-y-1">
+        @foreach (var category in PromptService.State.Categories.OrderBy(c => c.SortOrder))
+        {
+            <button 
+                @onclick="() => SelectCategory(category.Id)"
+                class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200 @GetCategoryClasses(category.Id)">
+                <i data-lucide="@category.Icon" class="h-4 w-4 flex-shrink-0"></i>
+                <span class="text-sm font-medium truncate">@category.Name</span>
+                <span class="text-xs text-sidebar-foreground/70 ml-auto">@GetCategoryCount(category.Id)</span>
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<string> OnCategoryChanged { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        PromptService.StateChanged += StateHasChanged;
+    }
+
+    private async Task SelectCategory(string categoryId)
+    {
+        await OnCategoryChanged.InvokeAsync(categoryId);
+    }
+
+    private string GetCategoryClasses(string categoryId)
+    {
+        var isActive = PromptService.State.SelectedCategory == categoryId;
+        var baseClasses = "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-200";
+        
+        if (isActive)
+        {
+            return $"{baseClasses} bg-sidebar-primary text-sidebar-primary-foreground";
+        }
+        
+        return $"{baseClasses} hover:bg-sidebar-accent hover:text-sidebar-foreground";
+    }
+
+    private int GetCategoryCount(string categoryId)
+    {
+        if (categoryId == "all")
+        {
+            return PromptService.State.Prompts.Count;
+        }
+        
+        return PromptService.State.Prompts.Count(p => p.Category == categoryId);
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= StateHasChanged;
+    }
+}

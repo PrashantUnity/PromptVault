@@ -1,0 +1,101 @@
+﻿@inherits LayoutComponentBase
+@using PromptsChat.Services
+@using PromptsChat.Constants
+@inject IPromptService PromptService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<div class="min-h-screen bg-background">
+    <!-- Header -->
+    <Header @ref="header" OnToggleSidebar="ToggleSidebar" OnToggleTheme="ToggleTheme" OnShowHelp="ShowHelp" />
+    
+    <!-- Sidebar -->
+    <div class="sidebar @(sidebarOpen ? "open" : "")" id="sidebar">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-2 group cursor-pointer">
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-violet-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                        <span class="text-white font-bold text-sm">PV</span>
+                    </div>
+                    <h1 class="text-xl font-semibold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
+                        PromptVault
+                    </h1>
+                </div>
+                    <button @onclick="ToggleSidebar" class="lg:hidden p-2 rounded-md hover:bg-sidebar-accent">
+                        @((MarkupString)SvgIcons.GetIcon("close", "h-5 w-5"))
+                    </button>
+            </div>
+            
+            <!-- Category Filter -->
+            <CategoryFilter @ref="categoryFilter" OnCategoryChanged="OnCategoryChanged" />
+            
+            <!-- Quick Stats -->
+            <div class="mt-8 p-4 bg-sidebar-accent rounded-lg">
+                <h3 class="text-sm font-medium text-sidebar-foreground mb-3">Quick Stats</h3>
+                <div class="space-y-2 text-sm text-sidebar-foreground">
+                    <div class="flex justify-between">
+                        <span>Total Prompts</span>
+                        <span class="font-medium">@PromptService.Prompts.Count</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Favorites</span>
+                        <span class="font-medium">@PromptService.State.Favorites.Count</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Categories</span>
+                        <span class="font-medium">@PromptService.Categories.Count</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop @(sidebarOpen ? "open" : "")" @onclick="ToggleSidebar"></div>
+    
+    <!-- Main Content -->
+    <main class="pt-24 lg:pt-20 transition-all duration-300 lg:ml-64 min-h-screen">
+        <div class="container mx-auto px-4 py-6 lg:px-6 lg:py-8">
+            @Body
+        </div>
+    </main>
+</div>
+
+@code {
+    private Header? header;
+    private CategoryFilter? categoryFilter;
+    private bool sidebarOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PromptService.StateChanged += StateHasChanged;
+    }
+
+    // SVG icons are inline - no initialization needed
+
+    private void ToggleSidebar()
+    {
+        sidebarOpen = !sidebarOpen;
+        StateHasChanged();
+    }
+
+    private async Task ToggleTheme()
+    {
+        await PromptService.ToggleThemeAsync();
+    }
+
+    private async Task ShowHelp()
+    {
+        await PromptService.ShowHelpModalAsync();
+    }
+
+    private async Task OnCategoryChanged(string category)
+    {
+        await PromptService.SetSelectedCategoryAsync(category);
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= StateHasChanged;
+    }
+}

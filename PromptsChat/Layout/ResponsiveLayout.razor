@@ -1,0 +1,314 @@
+@inherits LayoutComponentBase
+@using PromptsChat.Services
+@inject IPromptService PromptService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+@if (isMobile)
+{
+    @* Mobile Layout *@
+    <div class="min-h-screen bg-background">
+        <!-- Mobile Header -->
+        <div class="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-2 flex items-center justify-between">
+                <!-- Mobile Menu Button -->
+                <button @onclick="ToggleSidebar" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <i data-lucide="menu" class="h-4 w-4"></i>
+                </button>
+                
+                <!-- Mobile Logo -->
+                <div class="flex items-center gap-1.5">
+                    <div class="w-6 h-6 bg-gradient-to-br from-blue-600 to-violet-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xs">PV</span>
+                    </div>
+                    <h1 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                        PromptVault
+                    </h1>
+                </div>
+                
+                <!-- Mobile Actions -->
+                <div class="flex items-center gap-1">
+                    <button @onclick="ToggleTheme" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Toggle theme">
+                        <i data-lucide="@(PromptService.State.Theme == "light" ? "moon" : "sun")" class="h-4 w-4"></i>
+                    </button>
+                    <button @onclick="ShowHelp" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Help">
+                        <i data-lucide="help-circle" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Search Bar -->
+            <div class="px-4 pb-2">
+                <SearchBar OnSearchChanged="OnSearchChanged" />
+            </div>
+        </div>
+        
+        <!-- Mobile Sidebar -->
+        <div class="mobile-sidebar @(sidebarOpen ? "open" : "")" id="mobile-sidebar">
+            <div class="p-4 h-full overflow-y-auto">
+                <!-- Mobile Sidebar Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-violet-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">PV</span>
+                        </div>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Menu</h2>
+                    </div>
+                    <button @onclick="ToggleSidebar" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Mobile Category Filter -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Categories</h3>
+                    <CategoryFilter OnCategoryChanged="OnCategoryChanged" />
+                </div>
+                
+                <!-- Mobile Quick Stats -->
+                <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Quick Stats</h3>
+                    <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div class="flex justify-between">
+                            <span>Total Prompts</span>
+                            <span class="font-medium text-gray-900 dark:text-gray-100">@PromptService.Prompts.Count</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Favorites</span>
+                            <span class="font-medium text-gray-900 dark:text-gray-100">@PromptService.State.Favorites.Count</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Categories</span>
+                            <span class="font-medium text-gray-900 dark:text-gray-100">@PromptService.Categories.Count</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="mobile-sidebar-backdrop @(sidebarOpen ? "open" : "")" @onclick="ToggleSidebar"></div>
+        
+        <!-- Mobile Main Content -->
+        <main class="pt-16 pb-16 min-h-screen">
+            @Body
+        </main>
+        
+        <!-- Mobile Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-around py-2">
+                <button @onclick="ShowAllPrompts" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <i data-lucide="grid-3x3" class="h-5 w-5"></i>
+                    <span class="text-xs">All</span>
+                </button>
+                <button @onclick="ShowFavorites" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <i data-lucide="heart" class="h-5 w-5"></i>
+                    <span class="text-xs">Favorites</span>
+                </button>
+                <button @onclick="ShowHistory" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <i data-lucide="clock" class="h-5 w-5"></i>
+                    <span class="text-xs">Recent</span>
+                </button>
+                <button @onclick="ShowSearch" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <i data-lucide="search" class="h-5 w-5"></i>
+                    <span class="text-xs">Search</span>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @* Desktop Layout *@
+    <div class="min-h-screen bg-background">
+        <!-- Header -->
+        <Header @ref="header" OnToggleSidebar="ToggleSidebar" OnToggleTheme="ToggleTheme" OnShowHelp="ShowHelp" />
+        
+        <!-- Sidebar -->
+        <div class="sidebar @(sidebarOpen ? "open" : "")" id="sidebar">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-2 group cursor-pointer">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-violet-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                            <span class="text-white font-bold text-sm">PV</span>
+                        </div>
+                        <h1 class="text-xl font-semibold text-sidebar-foreground group-hover:text-primary transition-colors duration-300">
+                            PromptVault
+                        </h1>
+                    </div>
+                    <button @onclick="ToggleSidebar" class="lg:hidden p-2 rounded-md hover:bg-sidebar-accent">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                
+                <!-- Category Filter -->
+                <CategoryFilter @ref="categoryFilter" OnCategoryChanged="OnCategoryChanged" />
+                
+                <!-- Quick Stats -->
+                <div class="mt-8 p-4 bg-sidebar-accent rounded-lg">
+                    <h3 class="text-sm font-medium text-sidebar-foreground mb-3">Quick Stats</h3>
+                    <div class="space-y-2 text-sm text-sidebar-foreground">
+                        <div class="flex justify-between">
+                            <span>Total Prompts</span>
+                            <span class="font-medium">@PromptService.Prompts.Count</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Favorites</span>
+                            <span class="font-medium">@PromptService.State.Favorites.Count</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Categories</span>
+                            <span class="font-medium">@PromptService.Categories.Count</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Backdrop -->
+        <div class="sidebar-backdrop @(sidebarOpen ? "open" : "")" @onclick="ToggleSidebar"></div>
+        
+        <!-- Main Content -->
+        <main class="pt-16 transition-all duration-300 lg:ml-64 min-h-screen">
+            @Body
+        </main>
+    </div>
+}
+
+@code {
+    private Header? header;
+    private CategoryFilter? categoryFilter;
+    private bool isMobile = false;
+    private bool isInitialized = false;
+    private bool sidebarOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PromptService.StateChanged += StateHasChanged;
+        await CheckScreenSize();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("addResizeListener", DotNetObjectReference.Create(this));
+            await CheckScreenSize();
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnResize()
+    {
+        await CheckScreenSize();
+    }
+
+    private async Task CheckScreenSize()
+    {
+        try
+        {
+            var width = await JSRuntime.InvokeAsync<int>("getWindowWidth");
+            var wasMobile = isMobile;
+            isMobile = width < 768; // Mobile breakpoint at 768px
+            
+            if (wasMobile != isMobile || !isInitialized)
+            {
+                isInitialized = true;
+                StateHasChanged();
+            }
+        }
+        catch
+        {
+            // Fallback to desktop if JS interop fails
+            isMobile = false;
+            if (!isInitialized)
+            {
+                isInitialized = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void ToggleSidebar()
+    {
+        sidebarOpen = !sidebarOpen;
+        StateHasChanged();
+    }
+
+    private async Task ToggleTheme()
+    {
+        await PromptService.ToggleThemeAsync();
+    }
+
+    private async Task ShowHelp()
+    {
+        await PromptService.ShowHelpModalAsync();
+    }
+
+    private async Task OnSearchChanged(string searchQuery)
+    {
+        await PromptService.SetSearchQueryAsync(searchQuery);
+    }
+
+    private async Task OnCategoryChanged(string category)
+    {
+        await PromptService.SetSelectedCategoryAsync(category);
+        // Close sidebar after category selection on mobile
+        if (isMobile)
+        {
+            sidebarOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowFavorites()
+    {
+        await PromptService.SetShowFavoritesOnlyAsync(true);
+        if (isMobile)
+        {
+            sidebarOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowHistory()
+    {
+        // This would show history - you might need to implement this in PromptService
+        if (isMobile)
+        {
+            sidebarOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowExportImport()
+    {
+        // This would show export/import modal - you might need to implement this
+        if (isMobile)
+        {
+            sidebarOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowAllPrompts()
+    {
+        await PromptService.SetShowFavoritesOnlyAsync(false);
+        await PromptService.SetSelectedCategoryAsync("all");
+    }
+
+    private void ShowSearch()
+    {
+        // Focus on search input - you might need to implement this
+        if (isMobile)
+        {
+            sidebarOpen = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= StateHasChanged;
+    }
+}
