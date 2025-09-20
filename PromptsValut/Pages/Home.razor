@@ -141,7 +141,7 @@
 
 <!-- Modals -->
 <PromptDetailModal @ref="promptDetailModal" IsVisible="showPromptDetail" OnClose="ClosePromptDetail" />
-<HelpModal @ref="helpModal" IsVisible="showHelpModal" OnClose="CloseHelpModal" />
+<HelpModal @ref="helpModal" IsVisible="PromptService.ShowHelpModal" OnClose="CloseHelpModal" />
 <FavoritesModal @ref="favoritesModal" IsVisible="showFavoritesModal" OnClose="CloseFavoritesModal" OnViewPrompt="OnPromptClick" />
 <CreateModal @ref="createModal" IsVisible="showCreateModal" OnClose="CloseCreateModal" />
 <ExportImportModal @ref="exportImportModal" IsVisible="showExportImportModal" OnClose="CloseExportImportModal" />
@@ -154,7 +154,6 @@
     private ExportImportModal? exportImportModal;
     
     private bool showPromptDetail = false;
-    private bool showHelpModal = false;
     private bool showFavoritesModal = false;
     private bool showCreateModal = false;
     private bool showExportImportModal = false;
@@ -229,10 +228,9 @@
         StateHasChanged();
     }
 
-    private void CloseHelpModal()
+    private async Task CloseHelpModal()
     {
-        showHelpModal = false;
-        StateHasChanged();
+        await PromptService.HideHelpModalAsync();
     }
 
     private void CloseFavoritesModal()
