@@ -32,10 +32,10 @@ public class PromptService : IPromptService
             {
                 var query = _state.SearchQuery.ToLower();
                 prompts = prompts.Where(p => 
-                    p.Title.ToLower().Contains(query) ||
-                    p.Content.ToLower().Contains(query) ||
-                    p.Description.ToLower().Contains(query) ||
-                    p.Tags.Any(t => t.ToLower().Contains(query)));
+                    (!string.IsNullOrEmpty(p.Title) && p.Title.ToLower().Contains(query)) ||
+                    (!string.IsNullOrEmpty(p.Content) && p.Content.ToLower().Contains(query)) ||
+                    (!string.IsNullOrEmpty(p.Description) && p.Description.ToLower().Contains(query)) ||
+                    (p.Tags != null && p.Tags.Any(t => !string.IsNullOrEmpty(t) && t.ToLower().Contains(query))));
             }
 
             // Filter by favorites only
