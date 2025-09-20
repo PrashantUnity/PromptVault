@@ -21,7 +21,19 @@ jobs:
         run: dotnet publish PromptsValut/PromptsValut.csproj -c Release -o release --nologo
 
       - name: Change base-tag in index.html from / to PromptsValut
-        run: sed -i 's/<base href="\/" \/>/<base href="\/PromptsValut\/" \/>/g' release/wwwroot/index.html
+        run: sed -i 's|<base href="/" />|<base href="/PromptsValut/" />|g' release/wwwroot/index.html
+
+      - name: Update Blazor script references to use hashed files
+        run: |
+          # Find the actual blazor.webassembly file with hash
+          BLAZOR_FILE=$(find release/wwwroot/_framework -name "blazor.webassembly.*.js" | head -1)
+          BLAZOR_FILENAME=$(basename "$BLAZOR_FILE")
+          
+          # Update the script reference in index.html
+          sed -i "s|_framework/blazor.webassembly.js|_framework/$BLAZOR_FILENAME|g" release/wwwroot/index.html
+          
+          # Also update any preload links
+          sed -i "s|_framework/blazor.webassembly.js|_framework/$BLAZOR_FILENAME|g" release/wwwroot/index.html
 
       - name: Add 404.html (for GitHub Pages SPA fallback)
         run: cp release/wwwroot/index.html release/wwwroot/404.html
