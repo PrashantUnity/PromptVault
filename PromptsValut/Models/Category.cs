@@ -8,6 +8,5 @@ public class Category
     public string Icon { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
     public int PromptCount { get; set; } = 0;
-    public bool IsActive { get; set; } = true;
     public int SortOrder { get; set; } = 0;
 }

@@ -85,46 +85,6 @@ public class PromptService : IPromptService
         return Task.FromResult(_state.Categories.ToList());
     }
 
-    public Task<List<Prompt>> GetFilteredPromptsAsync()
-    {
-        var prompts = _state.Prompts.AsQueryable();
-
-        // Filter by category
-        if (_state.SelectedCategory != "all")
-        {
-            prompts = prompts.Where(p => p.Category == _state.SelectedCategory);
-        }
-
-        // Filter by search query
-        if (!string.IsNullOrEmpty(_state.SearchQuery))
-        {
-            var query = _state.SearchQuery.ToLower();
-            prompts = prompts.Where(p => 
-                p.Title.ToLower().Contains(query) ||
-                p.Description.ToLower().Contains(query) ||
-                p.Content.ToLower().Contains(query) ||
-                p.Tags.Any(tag => tag.ToLower().Contains(query)));
-        }
-
-        // Filter by favorites only
-        if (_state.ShowFavoritesOnly)
-        {
-            prompts = prompts.Where(p => _state.Favorites.Contains(p.Id));
-        }
-
-        // Sort
-        prompts = _state.SortBy switch
-        {
-            "newest" => prompts.OrderByDescending(p => p.CreatedAt),
-            "oldest" => prompts.OrderBy(p => p.CreatedAt),
-            "title" => prompts.OrderBy(p => p.Title),
-            "rating" => prompts.OrderByDescending(p => p.AverageRating),
-            "usage" => prompts.OrderByDescending(p => p.UsageCount),
-            _ => prompts.OrderByDescending(p => p.CreatedAt)
-        };
-
-        return Task.FromResult(prompts.ToList());
-    }
 
     public Task<Prompt?> GetPromptByIdAsync(string id)
     {
@@ -552,12 +512,6 @@ public class PromptService : IPromptService
         NotifyStateChanged();
     }
 
-    public async Task SetSortByAsync(string sortBy)
-    {
-        _state.SortBy = sortBy;
-        await SaveStateToStorageAsync();
-        NotifyStateChanged();
-    }
 
     private void NotifyStateChanged()
     {

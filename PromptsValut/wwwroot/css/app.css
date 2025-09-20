@@ -182,37 +182,6 @@ body {
     @apply bg-green-900/20 text-green-300 border-green-800;
 }
 
-.category-documentation {
-    @apply bg-purple-50 text-purple-700 border-purple-200;
-}
-
-.dark .category-documentation {
-    @apply bg-purple-900/20 text-purple-300 border-purple-800;
-}
-
-.category-code-review {
-    @apply bg-orange-50 text-orange-700 border-orange-200;
-}
-
-.dark .category-code-review {
-    @apply bg-orange-900/20 text-orange-300 border-orange-800;
-}
-
-.category-writing {
-    @apply bg-pink-50 text-pink-700 border-pink-200;
-}
-
-.dark .category-writing {
-    @apply bg-pink-900/20 text-pink-300 border-pink-800;
-}
-
-.category-analysis {
-    @apply bg-indigo-50 text-indigo-700 border-indigo-200;
-}
-
-.dark .category-analysis {
-    @apply bg-indigo-900/20 text-indigo-300 border-indigo-800;
-}
 
 .category-marketing {
     @apply bg-pink-50 text-pink-700 border-pink-200;
@@ -469,77 +438,7 @@ body {
     to { opacity: 1; }
 }
 
-/* Modal animations */
-.animate-fade-in-down {
-    animation: fade-in-down 0.6s ease-out forwards;
-}
 
-.animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-scale-in {
-    animation: scale-in 0.2s ease-out forwards;
-}
-
-.animate-bounce-in {
-    animation: bounce-in 0.6s ease-out forwards;
-}
-
-.hover\:shadow-glow:hover {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-}
-
-.duration-fast {
-    transition-duration: 150ms;
-}
-
-@keyframes fade-in-down {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse-glow {
-    0%, 100% {
-        opacity: 1;
-        filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0));
-    }
-    50% {
-        opacity: 0.8;
-        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
-    }
-}
-
-@keyframes scale-in {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes bounce-in {
-    from {
-        opacity: 0;
-        transform: scale(0.3);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
 
 /* Mobile Layout Styles */
 .mobile-sidebar {
@@ -579,16 +478,6 @@ body {
     visibility: visible;
 }
 
-/* Mobile Bottom Navigation */
-.mobile-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: hsl(var(--background));
-    border-top: 1px solid hsl(var(--border));
-    z-index: 30;
-}
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {

@@ -7,5 +7,4 @@ public class ExportData
     public Dictionary<string, UserRating> UserRatings { get; set; } = new();
     public List<string> History { get; set; } = new();
     public string ExportDate { get; set; } = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
-    public string Version { get; set; } = "1.0";
 }

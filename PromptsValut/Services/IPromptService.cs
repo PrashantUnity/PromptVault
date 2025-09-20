@@ -15,7 +15,6 @@ public interface IPromptService
     Task LoadDataAsync();
     Task<List<Prompt>> GetPromptsAsync();
     Task<List<Category>> GetCategoriesAsync();
-    Task<List<Prompt>> GetFilteredPromptsAsync();
     Task<Prompt?> GetPromptByIdAsync(string id);
     Task AddPromptAsync(Prompt prompt);
     Task UpdatePromptAsync(Prompt prompt);
@@ -25,7 +24,6 @@ public interface IPromptService
     Task SetSearchQueryAsync(string query);
     Task SetSelectedCategoryAsync(string category);
     Task SetShowFavoritesOnlyAsync(bool showFavoritesOnly);
-    Task SetSortByAsync(string sortBy);
     Task SetThemeAsync(string theme);
     Task ToggleThemeAsync();
     Task ExportDataAsync();

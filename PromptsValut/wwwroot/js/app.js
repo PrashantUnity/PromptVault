@@ -39,26 +39,6 @@ window.downloadFile = (filename, content) => {
     URL.revokeObjectURL(url);
 };
 
-// File upload utility
-window.uploadFile = () => {
-    return new Promise((resolve, reject) => {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = reject;
-                reader.readAsText(file);
-            } else {
-                reject(new Error('No file selected'));
-            }
-        };
-        input.click();
-    });
-};
 
 // Toast notification system
 window.showToast = (message, type = 'info') => {
@@ -99,22 +79,6 @@ window.copyToClipboard = async (text) => {
 // SVG icons are now inline - no initialization needed
 console.log('Using inline SVG icons - no external icon library required');
 
-// Modal management
-window.showModal = (modalId) => {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-};
-
-window.hideModal = (modalId) => {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-};
 
 // Close modal when clicking outside
 document.addEventListener('click', (e) => {
@@ -145,23 +109,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Smooth scrolling for better UX
-window.smoothScrollTo = (elementId) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-    }
-};
-
-// Animation utilities
-window.animateElement = (element, animationClass) => {
-    if (element) {
-        element.classList.add(animationClass);
-        setTimeout(() => {
-            element.classList.remove(animationClass);
-        }, 1000);
-    }
-};
 
 // File input click helper
 window.clickFileInput = (elementRef) => {
