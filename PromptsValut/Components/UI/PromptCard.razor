@@ -1,3 +1,4 @@
+@using PromptsValut.Constants
 @inject IPromptService PromptService
 @inject IJSRuntime JSRuntime
 
@@ -12,13 +13,13 @@
                 @onclick="() => ToggleFavorite()"
                 class="p-1.5 rounded-lg hover:bg-gray-200/50 dark:hover:bg-white/20 transition-colors duration-200 @(IsFavorite ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-300")"
                 title="@(IsFavorite ? "Remove from favorites" : "Add to favorites")">
-                <i data-lucide="heart" class="h-4 w-4 @(IsFavorite ? "fill-current" : "")"></i>
+                @((MarkupString)SvgIcons.Heart)
             </button>
             <button 
                 @onclick="() => SetRating(5)"
                 class="p-1.5 rounded-lg hover:bg-gray-200/50 dark:hover:bg-white/20 transition-colors duration-200 text-gray-600 dark:text-gray-300"
                 title="Rate this prompt">
-                <i data-lucide="star" class="h-4 w-4"></i>
+                @((MarkupString)SvgIcons.Star)
             </button>
         </div>
     </div>
@@ -68,14 +69,14 @@
             @onclick="() => CopyPrompt()"
             class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
             title="Copy Prompt">
-            <i data-lucide="copy" class="h-4 w-4"></i>
+            @((MarkupString)SvgIcons.Copy)
             <span>Copy</span>
         </button>
         <button 
             @onclick="() => ViewPrompt()"
             class="bg-gray-200/80 dark:bg-white/20 hover:bg-gray-300/80 dark:hover:bg-white/30 text-gray-800 dark:text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
             title="View details">
-            <i data-lucide="eye" class="h-4 w-4"></i>
+            @((MarkupString)SvgIcons.Eye)
             <span>View</span>
         </button>
     </div>
@@ -100,7 +101,8 @@
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("initializeIcons");
+            // Icons are now SVG-based, no initialization needed
+            await Task.CompletedTask;
         }
     }
 

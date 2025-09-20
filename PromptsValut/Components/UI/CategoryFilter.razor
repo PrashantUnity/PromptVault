@@ -1,3 +1,4 @@
+@using PromptsValut.Constants
 @inject IPromptService PromptService
 
 <div class="mt-6">
@@ -10,7 +11,7 @@
             <button 
                 @onclick="() => SelectCategory(category.Id)"
                 class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all duration-300 hover:scale-105 @GetCategoryClasses(category.Id)">
-                <i data-lucide="@category.Icon" class="h-4 w-4 flex-shrink-0"></i>
+                @((MarkupString)SvgIcons.GetIcon(category.Icon, "h-4 w-4 flex-shrink-0"))
                 <span class="text-sm font-medium truncate">@category.Name</span>
                 <span class="text-xs text-sidebar-foreground/70 ml-auto">@GetCategoryCount(category.Id)</span>
             </button>

@@ -1,4 +1,5 @@
 @inherits LayoutComponentBase
+@using PromptsValut.Constants
 @inject IPromptService PromptService
 @inject IJSRuntime JSRuntime
 @implements IDisposable
@@ -12,7 +13,7 @@
             <div class="px-4 py-4 flex items-center justify-between">
                 <!-- Mobile Menu Button -->
                 <button @onclick="ToggleSidebar" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
+                    @((MarkupString)SvgIcons.Menu)
                 </button>
                 
                 <!-- Mobile Search Bar -->
@@ -23,10 +24,17 @@
                 <!-- Mobile Actions -->
                 <div class="flex items-center gap-2 flex-shrink-0">
                     <button @onclick="ToggleTheme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Toggle theme">
-                        <i data-lucide="@(PromptService.State.Theme == "light" ? "moon" : "sun")" class="h-5 w-5"></i>
+                        @if (PromptService.State.Theme == "light")
+                        {
+                            @((MarkupString)SvgIcons.Moon)
+                        }
+                        else
+                        {
+                            @((MarkupString)SvgIcons.Sun)
+                        }
                     </button>
                     <button @onclick="ShowHelp" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Help">
-                        <i data-lucide="help-circle" class="h-5 w-5"></i>
+                        @((MarkupString)SvgIcons.HelpCircle)
                     </button>
                 </div>
             </div>
@@ -44,7 +52,7 @@
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Menu</h2>
                     </div>
                     <button @onclick="ToggleSidebar" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                        @((MarkupString)SvgIcons.X)
                     </button>
                 </div>
                 
@@ -89,19 +97,19 @@
         <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-around py-2">
                 <button @onclick="ShowAllPrompts" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <i data-lucide="grid-3x3" class="h-5 w-5"></i>
+                    @((MarkupString)SvgIcons.Grid3x3)
                     <span class="text-xs">All</span>
                 </button>
                 <button @onclick="ShowFavorites" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <i data-lucide="heart" class="h-5 w-5"></i>
+                    @((MarkupString)SvgIcons.Heart)
                     <span class="text-xs">Favorites</span>
                 </button>
                 <button @onclick="ShowHistory" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <i data-lucide="clock" class="h-5 w-5"></i>
+                    @((MarkupString)SvgIcons.Clock)
                     <span class="text-xs">Recent</span>
                 </button>
                 <button @onclick="ShowSearch" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <i data-lucide="search" class="h-5 w-5"></i>
+                    @((MarkupString)SvgIcons.Search)
                     <span class="text-xs">Search</span>
                 </button>
             </div>
@@ -128,7 +136,7 @@ else
                         </h1>
                     </div>
                     <button @onclick="ToggleSidebar" class="lg:hidden p-2 rounded-md hover:bg-sidebar-accent">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                        @((MarkupString)SvgIcons.X)
                     </button>
                 </div>
                 

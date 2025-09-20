@@ -173,6 +173,150 @@ public static class SvgIcons
         <path d=""M3 21v-5h5""></path>
     </svg>";
 
+    // Additional Category Icons
+    public const string LayoutGrid = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <rect width=""7"" height=""7"" x=""3"" y=""3"" rx=""1""></rect>
+        <rect width=""7"" height=""7"" x=""14"" y=""3"" rx=""1""></rect>
+        <rect width=""7"" height=""7"" x=""14"" y=""14"" rx=""1""></rect>
+        <rect width=""7"" height=""7"" x=""3"" y=""14"" rx=""1""></rect>
+    </svg>";
+
+    public const string TrendingUp = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <polyline points=""22,7 13.5,15.5 8.5,10.5 2,17""></polyline>
+        <polyline points=""16,7 22,7 22,13""></polyline>
+    </svg>";
+
+    public const string PenTool = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M12 19l7-7 3 3-7 7-3-3z""></path>
+        <path d=""M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z""></path>
+        <path d=""M2 2l7.586 7.586""></path>
+        <circle cx=""11"" cy=""11"" r=""2""></circle>
+    </svg>";
+
+    public const string GraduationCap = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M22 10v6M2 10l10-5 10 5-10 5z""></path>
+        <path d=""M6 12v5c3 3 9 3 12 0v-5""></path>
+    </svg>";
+
+    public const string BarChart3 = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M3 3v18h18""></path>
+        <path d=""M18 17V9""></path>
+        <path d=""M13 17V5""></path>
+        <path d=""M8 17v-3""></path>
+    </svg>";
+
+    public const string PlayCircle = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <circle cx=""12"" cy=""12"" r=""10""></circle>
+        <polygon points=""10,8 16,12 10,16""></polygon>
+    </svg>";
+
+    public const string Target = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <circle cx=""12"" cy=""12"" r=""10""></circle>
+        <circle cx=""12"" cy=""12"" r=""6""></circle>
+        <circle cx=""12"" cy=""12"" r=""2""></circle>
+    </svg>";
+
+    public const string Zap = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <polygon points=""13,2 3,14 12,14 11,22 21,10 12,10""></polygon>
+    </svg>";
+
+    public const string X = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <line x1=""18"" y1=""6"" x2=""6"" y2=""18""></line>
+        <line x1=""6"" y1=""6"" x2=""18"" y2=""18""></line>
+    </svg>";
+
+    // Additional icons found in other files
+    public const string FileText = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z""></path>
+        <polyline points=""14,2 14,8 20,8""></polyline>
+        <line x1=""16"" y1=""13"" x2=""8"" y2=""13""></line>
+        <line x1=""16"" y1=""17"" x2=""8"" y2=""17""></line>
+        <polyline points=""10,9 9,9 8,9""></polyline>
+    </svg>";
+
+    public const string Settings = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <circle cx=""12"" cy=""12"" r=""3""></circle>
+        <path d=""M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z""></path>
+    </svg>";
+
+    public const string Edit = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7""></path>
+        <path d=""M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z""></path>
+    </svg>";
+
+    public const string CheckCircle = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M22 11.08V12a10 10 0 1 1-5.93-9.14""></path>
+        <polyline points=""22,4 12,14.01 9,11.01""></polyline>
+    </svg>";
+
+    public const string RefreshCw = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <polyline points=""23,4 23,10 17,10""></polyline>
+        <polyline points=""1,20 1,14 7,14""></polyline>
+        <path d=""M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15""></path>
+    </svg>";
+
+    public const string Save = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z""></path>
+        <polyline points=""17,21 17,13 7,13 7,21""></polyline>
+        <polyline points=""7,3 7,8 15,8""></polyline>
+    </svg>";
+
+    public const string HelpCircle = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <circle cx=""12"" cy=""12"" r=""10""></circle>
+        <path d=""M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3""></path>
+        <line x1=""12"" y1=""17"" x2=""12.01"" y2=""17""></line>
+    </svg>";
+
+    public const string Grid3x3 = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <rect width=""7"" height=""7"" x=""3"" y=""3"" rx=""1""></rect>
+        <rect width=""7"" height=""7"" x=""14"" y=""3"" rx=""1""></rect>
+        <rect width=""7"" height=""7"" x=""14"" y=""14"" rx=""1""></rect>
+        <rect width=""7"" height=""7"" x=""3"" y=""14"" rx=""1""></rect>
+    </svg>";
+
+    public const string Trash2 = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <polyline points=""3,6 5,6 21,6""></polyline>
+        <path d=""M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2""></path>
+        <line x1=""10"" y1=""11"" x2=""10"" y2=""17""></line>
+        <line x1=""14"" y1=""11"" x2=""14"" y2=""17""></line>
+    </svg>";
+
+    public const string AlertTriangle = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z""></path>
+        <line x1=""12"" y1=""9"" x2=""12"" y2=""13""></line>
+        <line x1=""12"" y1=""17"" x2=""12.01"" y2=""17""></line>
+    </svg>";
+
+    // Additional Category Icons
+    public const string Code2 = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M18 16l4-4-4-4""></path>
+        <path d=""M6 8l-4 4 4 4""></path>
+        <path d=""M14.5 4l-5 16""></path>
+    </svg>";
+
+    public const string Briefcase = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <rect width=""20"" height=""14"" x=""2"" y=""7"" rx=""2"" ry=""2""></rect>
+        <path d=""M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16""></path>
+    </svg>";
+
+    public const string Cpu = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <rect width=""16"" height=""16"" x=""4"" y=""4"" rx=""2"" ry=""2""></rect>
+        <rect width=""6"" height=""6"" x=""9"" y=""9"" rx=""1"" ry=""1""></rect>
+        <path d=""M9 1v3""></path>
+        <path d=""M15 1v3""></path>
+        <path d=""M9 20v3""></path>
+        <path d=""M15 20v3""></path>
+        <path d=""M20 9h3""></path>
+        <path d=""M20 14h3""></path>
+        <path d=""M1 9h3""></path>
+        <path d=""M1 14h3""></path>
+    </svg>";
+
+    public const string Sparkles = @"<svg class=""h-4 w-4"" fill=""none"" stroke=""currentColor"" viewBox=""0 0 24 24"">
+        <path d=""M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.382a2 2 0 0 0-1.45 2.914l1.382 6.135a2 2 0 0 0 2.914 1.45l6.135-1.382a2 2 0 0 0 1.45-2.914L9.937 15.5Z""></path>
+        <path d=""M22.5 8.5a2 2 0 0 0-1.5-1.5l-5.5-1.25a2 2 0 0 0-1.5 3l1.25 5.5a2 2 0 0 0 3 1.5l5.5-1.25a2 2 0 0 0 1.5-3L22.5 8.5Z""></path>
+    </svg>";
+
     // Method to get icon with custom class
     public static string GetIcon(string iconName, string customClass = "")
     {
@@ -203,6 +347,36 @@ public static class SvgIcons
             "code" => Code.Replace("h-4 w-4", customClass),
             "lightbulb" => Lightbulb.Replace("h-4 w-4", customClass),
             "refresh" => Refresh.Replace("h-4 w-4", customClass),
+            "layout-grid" => LayoutGrid.Replace("h-4 w-4", customClass),
+            "trending-up" => TrendingUp.Replace("h-4 w-4", customClass),
+            "pen-tool" => PenTool.Replace("h-4 w-4", customClass),
+            "graduation-cap" => GraduationCap.Replace("h-4 w-4", customClass),
+            "bar-chart-3" => BarChart3.Replace("h-4 w-4", customClass),
+            "play-circle" => PlayCircle.Replace("h-4 w-4", customClass),
+            "target" => Target.Replace("h-4 w-4", customClass),
+            "zap" => Zap.Replace("h-4 w-4", customClass),
+            "x" => X.Replace("h-4 w-4", customClass),
+            "file-text" => FileText.Replace("h-4 w-4", customClass),
+            "settings" => Settings.Replace("h-4 w-4", customClass),
+            "edit" => Edit.Replace("h-4 w-4", customClass),
+            "check-circle" => CheckCircle.Replace("h-4 w-4", customClass),
+            "refresh-cw" => RefreshCw.Replace("h-4 w-4", customClass),
+            "save" => Save.Replace("h-4 w-4", customClass),
+            "help-circle" => HelpCircle.Replace("h-4 w-4", customClass),
+            "grid-3x3" => Grid3x3.Replace("h-4 w-4", customClass),
+            "trash-2" => Trash2.Replace("h-4 w-4", customClass),
+            "alert-triangle" => AlertTriangle.Replace("h-4 w-4", customClass),
+            // Category icons
+            "LayoutGrid" => LayoutGrid.Replace("h-4 w-4", customClass),
+            "TrendingUp" => TrendingUp.Replace("h-4 w-4", customClass),
+            "Code2" => Code2.Replace("h-4 w-4", customClass),
+            "PenTool" => PenTool.Replace("h-4 w-4", customClass),
+            "Briefcase" => Briefcase.Replace("h-4 w-4", customClass),
+            "GraduationCap" => GraduationCap.Replace("h-4 w-4", customClass),
+            "Cpu" => Cpu.Replace("h-4 w-4", customClass),
+            "Sparkles" => Sparkles.Replace("h-4 w-4", customClass),
+            "Zap" => Zap.Replace("h-4 w-4", customClass),
+            "BarChart3" => BarChart3.Replace("h-4 w-4", customClass),
             _ => ""
         };
     }

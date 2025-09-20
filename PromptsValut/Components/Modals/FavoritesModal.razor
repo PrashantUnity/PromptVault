@@ -1,3 +1,4 @@
+@using PromptsValut.Constants
 @inject IPromptService PromptService
 @inject IJSRuntime JSRuntime
 
@@ -8,11 +9,11 @@
             <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-semibold flex items-center gap-2">
-                        <i data-lucide="heart" class="h-6 w-6 text-red-500"></i>
+                        @((MarkupString)SvgIcons.Heart)
                         My Favorites (@PromptService.State.Favorites.Count)
                     </h2>
                     <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                        @((MarkupString)SvgIcons.X)
                     </button>
                 </div>
                 
@@ -31,7 +32,7 @@
                                             @onclick="() => RemoveFromFavorites(prompt.Id)"
                                             class="p-1 rounded hover:bg-accent transition-colors duration-200 text-red-500"
                                             title="Remove from favorites">
-                                            <i data-lucide="heart" class="h-4 w-4 fill-current"></i>
+                                            @((MarkupString)SvgIcons.Heart)
                                         </button>
                                     </div>
                                     
@@ -54,13 +55,13 @@
                                     <div class="flex items-center justify-between text-xs text-muted-foreground">
                                         <div class="flex items-center gap-3">
                                             <div class="flex items-center gap-1">
-                                                <i data-lucide="eye" class="h-3 w-3"></i>
+                                                @((MarkupString)SvgIcons.Eye)
                                                 <span>@prompt.UsageCount</span>
                                             </div>
                                             @if (prompt.AverageRating > 0)
                                             {
                                                 <div class="flex items-center gap-1">
-                                                    <i data-lucide="star" class="h-3 w-3 text-yellow-400 fill-current"></i>
+                                                    @((MarkupString)SvgIcons.Star)
                                                     <span>@prompt.AverageRating.ToString("F1")</span>
                                                 </div>
                                             }
@@ -73,13 +74,13 @@
                                                 @onclick="() => CopyPrompt(prompt.Content)"
                                                 class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
                                                 title="Copy Prompt">
-                                                <i data-lucide="copy" class="h-4 w-4"></i>
+                                                @((MarkupString)SvgIcons.Copy)
                                             </button>
                                             <button 
                                                 @onclick="() => ViewPrompt(prompt)"
                                                 class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
                                                 title="View details">
-                                                <i data-lucide="eye" class="h-4 w-4"></i>
+                                                @((MarkupString)SvgIcons.Eye)
                                             </button>
                                         </div>
                                         
@@ -96,7 +97,7 @@
                 {
                     <div class="text-center py-12">
                         <div class="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-                            <i data-lucide="heart" class="w-12 h-12 text-muted-foreground"></i>
+                            @((MarkupString)SvgIcons.Heart)
                         </div>
                         <p class="text-lg text-muted-foreground mb-2">No favorites yet</p>
                         <p class="text-sm text-muted-foreground">Start adding prompts to your favorites to see them here.</p>

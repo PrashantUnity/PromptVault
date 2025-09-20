@@ -1,3 +1,5 @@
+@using PromptsValut.Constants
+
 @if (IsVisible)
 {
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @onclick="CloseModal">
@@ -15,7 +17,7 @@
                         <p class="text-sm text-muted-foreground mt-1">Learn how to discover, customize, and use AI prompts effectively.</p>
                     </div>
                     <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent transition-colors">
-                        <i data-lucide="x" class="h-5 w-5 text-muted-foreground"></i>
+                        @((MarkupString)SvgIcons.X.Replace("h-4 w-4", "h-5 w-5"))
                     </button>
                 </div>
             </div>
@@ -24,24 +26,24 @@
             <div class="px-6 py-4">
                 <div class="flex items-center space-x-1 bg-muted rounded-lg p-1">
                     <button @onclick="() => SetActiveTab(0)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors @(activeTab == 0 ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")">
-                        <i data-lucide="play-circle" class="h-4 w-4 mr-2"></i>
-                        Getting Started
+                        @((MarkupString)SvgIcons.PlayCircle)
+                        <span class="ml-2">Getting Started</span>
                     </button>
                     <button @onclick="() => SetActiveTab(1)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors @(activeTab == 1 ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")">
-                        <i data-lucide="search" class="h-4 w-4 mr-2"></i>
-                        Browsing & Search
+                        @((MarkupString)SvgIcons.Search)
+                        <span class="ml-2">Browsing & Search</span>
                     </button>
                     <button @onclick="() => SetActiveTab(2)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors @(activeTab == 2 ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")">
-                        <i data-lucide="heart" class="h-4 w-4 mr-2"></i>
-                        Favorites & History
+                        @((MarkupString)SvgIcons.Heart)
+                        <span class="ml-2">Favorites & History</span>
                     </button>
                     <button @onclick="() => SetActiveTab(3)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors @(activeTab == 3 ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")">
-                        <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
-                        Create & Manage
+                        @((MarkupString)SvgIcons.Plus)
+                        <span class="ml-2">Create & Manage</span>
                     </button>
                     <button @onclick="() => SetActiveTab(4)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors @(activeTab == 4 ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")">
-                        <i data-lucide="lightbulb" class="h-4 w-4 mr-2"></i>
-                        Tips & Tricks
+                        @((MarkupString)SvgIcons.Lightbulb)
+                        <span class="ml-2">Tips & Tricks</span>
                     </button>
                 </div>
             </div>
@@ -54,7 +56,7 @@
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="target" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Target.Replace("h-4 w-4", "h-5 w-5"))
                                 Welcome to PromptVault
                             </h3>
                             <p class="text-muted-foreground mb-4">PromptVault is your personal AI prompt library designed to help you get better results from AI tools like ChatGPT, Claude, and others. Each prompt is carefully crafted and can be customized to fit your specific needs.</p>
@@ -62,14 +64,14 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                                     <h4 class="font-medium mb-2 flex items-center gap-2 text-foreground">
-                                        <i data-lucide="target" class="h-4 w-4 text-blue-500"></i>
+                                        @((MarkupString)SvgIcons.Target.Replace("h-4 w-4", "h-4 w-4").Replace("stroke=\"currentColor\"", "stroke=\"#3b82f6\""))
                                         Pre-built Prompts
                                     </h4>
                                     <p class="text-sm text-muted-foreground">Ready-to-use prompts for marketing, development, creative writing, business, and more</p>
                                 </div>
                                 <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
                                     <h4 class="font-medium mb-2 flex items-center gap-2 text-foreground">
-                                        <i data-lucide="zap" class="h-4 w-4 text-green-500"></i>
+                                        @((MarkupString)SvgIcons.Zap.Replace("stroke=\"currentColor\"", "stroke=\"#10b981\""))
                                         Dynamic Customization
                                     </h4>
                                     <p class="text-sm text-muted-foreground">Fill in placeholders to personalize prompts for your specific use case</p>
@@ -79,7 +81,7 @@
 
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="play-circle" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.PlayCircle.Replace("h-4 w-4", "h-5 w-5"))
                                 Quick Start Guide
                             </h3>
                             <p class="text-muted-foreground mb-4">Follow these steps to get started with PromptVault:</p>
@@ -115,7 +117,7 @@
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="search" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Search.Replace("h-4 w-4", "h-5 w-5"))
                                 Finding the Right Prompt
                             </h3>
                             
@@ -157,7 +159,7 @@
 
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="eye" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Eye.Replace("h-4 w-4", "h-5 w-5"))
                                 Understanding Prompt Cards
                             </h3>
                             <div class="p-4 bg-card border border-border rounded-lg">
@@ -180,7 +182,7 @@
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="heart" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Heart.Replace("h-4 w-4", "h-5 w-5"))
                                 Managing Your Favorites
                             </h3>
                             
@@ -225,7 +227,7 @@
 
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="star" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Star.Replace("h-4 w-4", "h-5 w-5"))
                                 Rating Prompts
                             </h3>
                             <p class="text-sm text-muted-foreground mb-3">Help the community by rating prompts:</p>
@@ -252,7 +254,7 @@
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="plus" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Plus.Replace("h-4 w-4", "h-5 w-5"))
                                 Creating Custom Prompts
                             </h3>
                             
@@ -320,7 +322,7 @@
                     <div class="space-y-6">
                         <div>
                             <h3 class="text-lg font-semibold mb-3 flex items-center gap-2 text-foreground">
-                                <i data-lucide="lightbulb" class="h-5 w-5 text-primary"></i>
+                                @((MarkupString)SvgIcons.Lightbulb.Replace("h-4 w-4", "h-5 w-5"))
                                 Pro Tips for Better Results
                             </h3>
                             
@@ -398,7 +400,7 @@
             <!-- Footer -->
             <div class="p-6 border-t border-border flex justify-end">
                 <button @onclick="CloseModal" class="btn-primary px-4 py-2 flex items-center gap-2">
-                    <i data-lucide="x" class="h-4 w-4"></i>
+                    @((MarkupString)SvgIcons.X)
                     Close
                 </button>
             </div>

@@ -369,7 +369,7 @@ public class PromptService : IPromptService
             });
             
             if (prompts != null && prompts.Any())
-                return Task.FromResult(prompts);
+                return Task.FromResult<List<Prompt>?>(prompts);
         }
         catch { }
 
@@ -385,7 +385,7 @@ public class PromptService : IPromptService
                 });
                 
                 if (prompts != null && prompts.Any())
-                    return Task.FromResult(prompts);
+                    return Task.FromResult<List<Prompt>?>(prompts);
             }
         }
         catch { }
@@ -402,7 +402,7 @@ public class PromptService : IPromptService
                 });
                 
                 if (prompts != null && prompts.Any())
-                    return Task.FromResult(prompts);
+                    return Task.FromResult<List<Prompt>?>(prompts);
             }
         }
         catch { }
@@ -435,7 +435,7 @@ public class PromptService : IPromptService
             }
             
             if (prompts.Any())
-                return Task.FromResult(prompts);
+                return Task.FromResult<List<Prompt>?>(prompts);
         }
         catch { }
 

@@ -1,3 +1,4 @@
+@using PromptsValut.Constants
 @inject IPromptService PromptService
 @inject IJSRuntime JSRuntime
 @inject IPlaceholderParserService PlaceholderParserService
@@ -11,7 +12,7 @@
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">@SelectedPrompt.Title</h2>
                     <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                        <i data-lucide="x" class="h-5 w-5 text-gray-500"></i>
+                        @((MarkupString)SvgIcons.X)
                     </button>
                 </div>
                 
@@ -32,18 +33,25 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                         <button @onclick="async () => await SetActiveTab(0)" class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(activeTab == 0 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300")">
-                            <i data-lucide="file-text" class="h-4 w-4 mr-2"></i>
+                            @((MarkupString)SvgIcons.FileText)
                             Original Prompt
                         </button>
                         <button @onclick="async () => await SetActiveTab(1)" 
                                 disabled="@isEditingPrompt"
                                 class="flex items-center px-3 py-2 text-sm font-medium rounded-md @(isEditingPrompt ? "text-gray-400 dark:text-gray-600 cursor-not-allowed" : (activeTab == 1 ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"))">
-                            <i data-lucide="settings" class="h-4 w-4 mr-2"></i>
+                            @((MarkupString)SvgIcons.Settings)
                             Customize @(isEditingPrompt ? "(Disabled while editing)" : "")
                         </button>
                     </div>
                     <button @onclick="async () => await ToggleEditMode()" class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <i data-lucide="@(isEditingPrompt ? "x" : "edit")" class="h-4 w-4 mr-2"></i>
+                        @if (isEditingPrompt)
+                        {
+                            @((MarkupString)SvgIcons.X)
+                        }
+                        else
+                        {
+                            @((MarkupString)SvgIcons.Edit)
+                        }
                         @(isEditingPrompt ? "Cancel" : "Edit Prompt")
                     </button>
                 </div>
@@ -72,11 +80,11 @@
                                 <!-- Copy buttons for edited prompt -->
                                 <div class="flex gap-3 mt-4">
                                     <button @onclick="CopyEditedPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
-                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        @((MarkupString)SvgIcons.Copy)
                                         Copy Edited Prompt
                                     </button>
                                     <button @onclick="CopyOriginalPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
-                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        @((MarkupString)SvgIcons.Copy)
                                         Copy Original Prompt
                                     </button>
                                 </div>
@@ -176,7 +184,7 @@
                         {
                             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center gap-2 mb-4">
-                                    <i data-lucide="check-circle" class="h-5 w-5 text-green-500"></i>
+                                    @((MarkupString)SvgIcons.CheckCircle)
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Generated Prompt</h3>
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
                                         Ready to use
@@ -191,11 +199,11 @@
 
                                 <div class="flex gap-3">
                                     <button @onclick="CopyOriginalPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
-                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        @((MarkupString)SvgIcons.Copy)
                                         Copy Original Prompt
                                     </button>
                                     <button @onclick="CopyGeneratedPrompt" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center justify-center">
-                                        <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                        @((MarkupString)SvgIcons.Copy)
                                         Copy Generated Prompt
                                     </button>
                                 </div>
@@ -214,11 +222,11 @@
                         <!-- Edit Mode Actions -->
                         <div class="flex items-center justify-between">
                             <button @onclick="CancelEdit" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i>
+                                @((MarkupString)SvgIcons.RefreshCw)
                                 Cancel
                             </button>
                             <button @onclick="SavePrompt" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md">
-                                <i data-lucide="save" class="h-4 w-4 mr-2"></i>
+                                @((MarkupString)SvgIcons.Save)
                                 Save
                             </button>
                         </div>
@@ -229,16 +237,16 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <button @onclick="CopyContent" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <i data-lucide="copy" class="h-4 w-4 mr-2"></i>
+                                    @((MarkupString)SvgIcons.Copy)
                                     Copy Content
                                 </button>
                                 <button @onclick="ToggleFavorite" class="px-4 py-2 text-sm font-medium rounded-md border @(IsFavorite ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300" : "border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600")">
-                                    <i data-lucide="heart" class="h-4 w-4 mr-2 @(IsFavorite ? "fill-current" : "")"></i>
+                                    @((MarkupString)SvgIcons.Heart)
                                     @(IsFavorite ? "Remove from Favorites" : "Add to Favorites")
                                 </button>
                             </div>
                             <button @onclick="RatePrompt" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                                <i data-lucide="star" class="h-4 w-4 mr-2"></i>
+                                @((MarkupString)SvgIcons.Star)
                                 Rate Prompt
                             </button>
                         </div>
@@ -254,7 +262,7 @@
                         <button @onclick="GenerateCustomPrompt" 
                                 disabled="@(!IsFormValid())"
                                 class="px-6 py-2 text-sm font-medium text-white @(IsFormValid() ? "bg-purple-600 hover:bg-purple-700" : "bg-gray-400 cursor-not-allowed") rounded-md flex items-center">
-                            <i data-lucide="settings" class="h-4 w-4 mr-2"></i>
+                            @((MarkupString)SvgIcons.Settings)
                             Generate Custom Prompt
                         </button>
                     </div>
@@ -293,9 +301,8 @@
         editedPromptContent = string.Empty;
         StateHasChanged();
         
-        // Initialize icons after the modal is rendered
-        await Task.Delay(1); // Small delay to ensure DOM is updated
-        await JSRuntime.InvokeVoidAsync("initializeIcons");
+        // Small delay to ensure DOM is updated
+        await Task.Delay(1);
     }
 
     private void ParsePromptPlaceholders()
@@ -331,9 +338,7 @@
         
         StateHasChanged();
         
-        // Initialize icons after tab content is rendered
         await Task.Delay(1);
-        await JSRuntime.InvokeVoidAsync("initializeIcons");
     }
 
     private async Task CloseModal()
@@ -519,9 +524,7 @@
             editedPromptContent = SelectedPrompt.Content;
             StateHasChanged();
             
-            // Initialize icons after edit mode content is rendered
             await Task.Delay(1);
-            await JSRuntime.InvokeVoidAsync("initializeIcons");
         }
     }
 
