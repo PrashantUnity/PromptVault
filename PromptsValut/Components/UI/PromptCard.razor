@@ -1,112 +1,83 @@
 @inject IPromptService PromptService
 @inject IJSRuntime JSRuntime
 
-<div class="prompt-card bg-card group rounded-lg border border-border p-4 md:p-6 cursor-pointer transform transition-all duration-300 fade-in-up hover:shadow-lg @GetCategoryCardClasses(Prompt.Category)">
-    <div class="space-y-4 flex flex-col h-full">
-        <div class="flex-grow">
-            <div class="flex items-start justify-between mb-2">
-                <h3 class="text-lg font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-300 flex-1 pr-2">
-                    @Prompt.Title
-                </h3>
-                <div class="flex items-center gap-1">
-                    <button 
-                        @onclick="() => ToggleFavorite()"
-                        class="p-1 rounded hover:bg-accent transition-colors duration-200 @(IsFavorite ? "text-red-500" : "text-muted-foreground")"
-                        title="@(IsFavorite ? "Remove from favorites" : "Add to favorites")">
-                        <i data-lucide="heart" class="h-4 w-4 @(IsFavorite ? "fill-current" : "")"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-2 mb-3">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetCategoryClasses(Prompt.Category)">
-                    @GetCategoryName(Prompt.Category)
-                </span>
-                @if (!string.IsNullOrEmpty(Prompt.Difficulty))
-                {
-                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium @GetDifficultyClasses(Prompt.Difficulty)">
-                        @Prompt.Difficulty
-                    </span>
-                }
-            </div>
-            
-            <p class="text-sm text-muted-foreground mb-3 line-clamp-3">
-                @Prompt.Description
-            </p>
-            
-            @if (Prompt.Tags.Any())
+<div class="prompt-card-enhanced group cursor-pointer stagger-item @GetCategoryGradientClasses(Prompt.Category)">
+    <!-- Card Header with Title and Actions -->
+    <div class="flex items-start justify-between mb-5">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 line-clamp-1 group-hover:text-gray-900 dark:group-hover:text-white transition-colors duration-300 flex-1 pr-2">
+            @Prompt.Title
+        </h3>
+        <div class="flex items-center gap-1">
+            <button 
+                @onclick="() => ToggleFavorite()"
+                class="p-1.5 rounded-lg hover:bg-gray-200/50 dark:hover:bg-white/20 transition-colors duration-200 @(IsFavorite ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-300")"
+                title="@(IsFavorite ? "Remove from favorites" : "Add to favorites")">
+                <i data-lucide="heart" class="h-4 w-4 @(IsFavorite ? "fill-current" : "")"></i>
+            </button>
+            <button 
+                @onclick="() => SetRating(5)"
+                class="p-1.5 rounded-lg hover:bg-gray-200/50 dark:hover:bg-white/20 transition-colors duration-200 text-gray-600 dark:text-gray-300"
+                title="Rate this prompt">
+                <i data-lucide="star" class="h-4 w-4"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Category and Difficulty Tags -->
+    <div class="flex items-center gap-2 mb-5">
+        <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium @GetCategoryTagClasses(Prompt.Category)">
+            @GetCategoryName(Prompt.Category)
+        </span>
+        @if (!string.IsNullOrEmpty(Prompt.Difficulty))
+        {
+            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium @GetDifficultyTagClasses(Prompt.Difficulty)">
+                @Prompt.Difficulty
+            </span>
+        }
+    </div>
+    
+    <!-- Description in White Box -->
+    <div class="bg-white/95 backdrop-blur-sm rounded-xl p-5 mb-5 shadow-lg">
+        <p class="text-sm text-gray-700 line-clamp-3 leading-relaxed">
+            @Prompt.Description
+        </p>
+    </div>
+    
+    <!-- Hashtags -->
+    @if (Prompt.Tags.Any())
+    {
+        <div class="flex flex-wrap gap-2 mb-5">
+            @foreach (var tag in Prompt.Tags.Take(4))
             {
-                <div class="flex flex-wrap gap-1 mb-3">
-                    @foreach (var tag in Prompt.Tags.Take(3))
-                    {
-                        <span class="inline-flex items-center px-2 py-1 rounded text-xs bg-muted text-muted-foreground">
-                            #@tag
-                        </span>
-                    }
-                    @if (Prompt.Tags.Length > 3)
-                    {
-                        <span class="inline-flex items-center px-2 py-1 rounded text-xs bg-muted text-muted-foreground">
-                            +@(Prompt.Tags.Length - 3)
-                        </span>
-                    }
-                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                    #@tag
+                </span>
+            }
+            @if (Prompt.Tags.Length > 4)
+            {
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                    +@(Prompt.Tags.Length - 4)
+                </span>
             }
         </div>
-        
-        <div class="flex items-center justify-between text-xs text-muted-foreground">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-1">
-                    <i data-lucide="eye" class="h-3 w-3"></i>
-                    <span>@Prompt.UsageCount</span>
-                </div>
-                @if (Prompt.AverageRating > 0)
-                {
-                    <div class="flex items-center gap-1">
-                        <i data-lucide="star" class="h-3 w-3 text-yellow-400 fill-current"></i>
-                        <span>@Prompt.AverageRating.ToString("F1")</span>
-                    </div>
-                }
-                @if (!string.IsNullOrEmpty(Prompt.EstimatedTime))
-                {
-                    <div class="flex items-center gap-1">
-                        <i data-lucide="clock" class="h-3 w-3"></i>
-                        <span>@Prompt.EstimatedTime</span>
-                    </div>
-                }
-            </div>
-            
-            <div class="flex items-center gap-1">
-                @for (int i = 1; i <= 5; i++)
-                {
-                    <button 
-                        @onclick="() => SetRating(i)"
-                        class="p-0.5 hover:scale-110 transition-transform duration-200">
-                        <i data-lucide="star" class="h-3 w-3 @(i <= UserRating ? "text-yellow-400 fill-current" : "text-muted-foreground hover:text-yellow-400")"></i>
-                    </button>
-                }
-            </div>
-        </div>
-        
-        <div class="flex items-center justify-between pt-2 border-t border-border">
-            <div class="flex items-center gap-1">
-                <button 
-                    @onclick="() => CopyPrompt()"
-                    class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
-                    title="Copy Prompt">
-                    <i data-lucide="copy" class="h-4 w-4"></i>
-                </button>
-                <button 
-                    @onclick="() => ViewPrompt()"
-                    class="p-2 rounded-lg hover:bg-accent hover:text-accent-foreground transition-all duration-200"
-                    title="View details">
-                    <i data-lucide="eye" class="h-4 w-4"></i>
-                </button>
-            </div>
-            
-            <div class="text-xs text-muted-foreground">
-                @Prompt.CreatedAt.ToString("MMM dd, yyyy")
-            </div>
-        </div>
+    }
+    
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-3 mt-auto">
+        <button 
+            @onclick="() => CopyPrompt()"
+            class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            title="Copy Prompt">
+            <i data-lucide="copy" class="h-4 w-4"></i>
+            <span>Copy</span>
+        </button>
+        <button 
+            @onclick="() => ViewPrompt()"
+            class="bg-gray-200/80 dark:bg-white/20 hover:bg-gray-300/80 dark:hover:bg-white/30 text-gray-800 dark:text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
+            title="View details">
+            <i data-lucide="eye" class="h-4 w-4"></i>
+            <span>View</span>
+        </button>
     </div>
 </div>
 
@@ -122,6 +93,14 @@
     protected override async Task OnInitializedAsync()
     {
         PromptService.StateChanged += StateHasChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeIcons");
+        }
     }
 
     private async Task ToggleFavorite()
@@ -151,20 +130,20 @@
         await OnSetRating.InvokeAsync((Prompt.Id, userRating));
     }
 
-    private string GetCategoryCardClasses(string category)
+    private string GetCategoryGradientClasses(string category)
     {
         return category switch
         {
-            "marketing" => "hover:shadow-red-100 dark:hover:shadow-red-900/20",
-            "development" => "hover:shadow-green-100 dark:hover:shadow-green-900/20",
-            "creative-writing" => "hover:shadow-purple-100 dark:hover:shadow-purple-900/20",
-            "business" => "hover:shadow-blue-100 dark:hover:shadow-blue-900/20",
-            "education" => "hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20",
-            "technology" => "hover:shadow-orange-100 dark:hover:shadow-orange-900/20",
-            "fun" => "hover:shadow-yellow-100 dark:hover:shadow-yellow-900/20",
-            "productivity" => "hover:shadow-violet-100 dark:hover:shadow-violet-900/20",
-            "data-analysis" => "hover:shadow-cyan-100 dark:hover:shadow-cyan-900/20",
-            _ => ""
+            "marketing" => "bg-gradient-to-br from-pink-100/80 via-pink-200/80 to-purple-200/80",
+            "development" => "bg-gradient-to-br from-green-100/80 via-emerald-200/80 to-blue-200/80",
+            "creative-writing" => "bg-gradient-to-br from-purple-100/80 via-purple-200/80 to-pink-200/80",
+            "business" => "bg-gradient-to-br from-blue-100/80 via-blue-200/80 to-indigo-200/80",
+            "education" => "bg-gradient-to-br from-emerald-100/80 via-green-200/80 to-teal-200/80",
+            "technology" => "bg-gradient-to-br from-orange-100/80 via-orange-200/80 to-red-200/80",
+            "fun" => "bg-gradient-to-br from-yellow-100/80 via-yellow-200/80 to-orange-200/80",
+            "productivity" => "bg-gradient-to-br from-violet-100/80 via-purple-200/80 to-indigo-200/80",
+            "data-analysis" => "bg-gradient-to-br from-cyan-100/80 via-blue-200/80 to-indigo-200/80",
+            _ => "bg-gradient-to-br from-gray-100/80 via-gray-200/80 to-gray-300/80"
         };
     }
 
@@ -199,6 +178,34 @@
     private string GetCategoryName(string category)
     {
         return PromptService.State.Categories.FirstOrDefault(c => c.Id == category)?.Name ?? category;
+    }
+
+    private string GetCategoryTagClasses(string category)
+    {
+        return category switch
+        {
+            "marketing" => "bg-pink-200 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+            "development" => "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+            "creative-writing" => "bg-purple-200 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+            "business" => "bg-blue-200 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+            "education" => "bg-emerald-200 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
+            "technology" => "bg-orange-200 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+            "fun" => "bg-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+            "productivity" => "bg-violet-200 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300",
+            "data-analysis" => "bg-cyan-200 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300",
+            _ => "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+        };
+    }
+
+    private string GetDifficultyTagClasses(string difficulty)
+    {
+        return difficulty switch
+        {
+            "beginner" => "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+            "intermediate" => "bg-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+            "advanced" => "bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+            _ => "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+        };
     }
 
     public void Dispose()

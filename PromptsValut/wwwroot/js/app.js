@@ -76,8 +76,19 @@ window.copyToClipboard = async (text) => {
     }
 };
 
-// SVG icons are now inline - no initialization needed
-console.log('Using inline SVG icons - no external icon library required');
+// Initialize Lucide icons
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+
+// Re-initialize icons after dynamic content changes
+window.initializeIcons = () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+};
 
 
 // Close modal when clicking outside

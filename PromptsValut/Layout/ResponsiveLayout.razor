@@ -8,37 +8,27 @@
     @* Mobile Layout *@
     <div class="min-h-screen bg-background">
         <!-- Mobile Header -->
-        <div class="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-            <div class="px-4 py-2 flex items-center justify-between">
+        <div class="mobile-header fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+            <div class="px-4 py-4 flex items-center justify-between">
                 <!-- Mobile Menu Button -->
-                <button @onclick="ToggleSidebar" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <i data-lucide="menu" class="h-4 w-4"></i>
+                <button @onclick="ToggleSidebar" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
                 
-                <!-- Mobile Logo -->
-                <div class="flex items-center gap-1.5">
-                    <div class="w-6 h-6 bg-gradient-to-br from-blue-600 to-violet-600 rounded-lg flex items-center justify-center">
-                        <span class="text-white font-bold text-xs">PV</span>
-                    </div>
-                    <h1 class="text-base font-semibold text-gray-900 dark:text-gray-100">
-                        PromptVault
-                    </h1>
+                <!-- Mobile Search Bar -->
+                <div class="flex-1 mx-4 max-w-md">
+                    <SearchBar OnSearchChanged="OnSearchChanged" />
                 </div>
                 
                 <!-- Mobile Actions -->
-                <div class="flex items-center gap-1">
-                    <button @onclick="ToggleTheme" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Toggle theme">
-                        <i data-lucide="@(PromptService.State.Theme == "light" ? "moon" : "sun")" class="h-4 w-4"></i>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button @onclick="ToggleTheme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Toggle theme">
+                        <i data-lucide="@(PromptService.State.Theme == "light" ? "moon" : "sun")" class="h-5 w-5"></i>
                     </button>
-                    <button @onclick="ShowHelp" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Help">
-                        <i data-lucide="help-circle" class="h-4 w-4"></i>
+                    <button @onclick="ShowHelp" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Help">
+                        <i data-lucide="help-circle" class="h-5 w-5"></i>
                     </button>
                 </div>
-            </div>
-            
-            <!-- Mobile Search Bar -->
-            <div class="px-4 pb-2">
-                <SearchBar OnSearchChanged="OnSearchChanged" />
             </div>
         </div>
         
@@ -89,8 +79,10 @@
         <div class="mobile-sidebar-backdrop @(sidebarOpen ? "open" : "")" @onclick="ToggleSidebar"></div>
         
         <!-- Mobile Main Content -->
-        <main class="pt-16 pb-16 min-h-screen">
-            @Body
+        <main class="pt-20 pb-20 min-h-screen">
+            <div class="px-4 py-4">
+                @Body
+            </div>
         </main>
         
         <!-- Mobile Bottom Navigation -->
@@ -168,8 +160,10 @@ else
         <div class="sidebar-backdrop @(sidebarOpen ? "open" : "")" @onclick="ToggleSidebar"></div>
         
         <!-- Main Content -->
-        <main class="pt-16 transition-all duration-300 lg:ml-64 min-h-screen">
-            @Body
+        <main class="pt-20 transition-all duration-300 lg:ml-64 min-h-screen">
+            <div class="container mx-auto px-4 lg:px-6 xl:px-8">
+                @Body
+            </div>
         </main>
     </div>
 }
