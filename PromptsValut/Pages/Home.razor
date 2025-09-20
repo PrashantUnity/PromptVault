@@ -34,7 +34,7 @@
         <!-- Prompt grid -->
         @if (PromptService.State.IsLoading)
         {
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 gap-6 lg:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 gap-4 lg:gap-6">
                 @for (int i = 0; i < 8; i++)
                 {
                     <div class="skeleton-card stagger-item">
@@ -51,7 +51,7 @@
         }
         else if (PromptService.FilteredPrompts.Any())
         {
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 gap-6 lg:gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-4 gap-4 lg:gap-6">
                 @foreach (var prompt in PromptService.FilteredPrompts)
                 {
                     <PromptCard Prompt="prompt" OnPromptClick="@OnPromptClick" OnToggleFavorite="@OnToggleFavorite" OnSetRating="@OnSetRating" />
@@ -101,7 +101,7 @@
         <!-- Prompt grid -->
         @if (PromptService.State.IsLoading)
         {
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 @for (int i = 0; i < 6; i++)
                 {
                     <div class="skeleton-card stagger-item">
@@ -118,7 +118,7 @@
         }
         else if (PromptService.FilteredPrompts.Any())
         {
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 @foreach (var prompt in PromptService.FilteredPrompts)
                 {
                     <PromptCard Prompt="prompt" OnPromptClick="@OnPromptClick" OnToggleFavorite="@OnToggleFavorite" OnSetRating="@OnSetRating" />
