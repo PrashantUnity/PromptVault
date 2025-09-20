@@ -35,4 +35,6 @@ public interface IPromptService
     Task ShowHelpModalAsync();
     Task HideHelpModalAsync();
     Task RefreshExternalDataAsync();
+    Task ResetToDefaultStateAsync();
+    Task<bool> ValidateAndRepairStateAsync();
 }

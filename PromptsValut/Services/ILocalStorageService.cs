@@ -1,6 +1,6 @@
 namespace PromptsValut.Services;
 
-public interface ILocalStorageService
+public interface ILocalStorageService : IDisposable
 {
     Task<T?> GetItemAsync<T>(string key);
     Task SetItemAsync<T>(string key, T value);

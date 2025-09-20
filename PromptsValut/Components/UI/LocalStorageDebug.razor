@@ -1,0 +1,85 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
+<div class="fixed bottom-4 left-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg z-50 max-w-md">
+    <h3 class="text-lg font-bold mb-2">Local Storage Debug</h3>
+    
+    <div class="space-y-2">
+        <button @onclick="DebugLocalStorage" 
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+            Debug Local Storage
+        </button>
+        
+        <button @onclick="ClearLocalStorage" 
+                class="w-full bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+            Clear Local Storage
+        </button>
+        
+        <button @onclick="CheckAvailability" 
+                class="w-full bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
+            Check Availability
+        </button>
+        
+        <button @onclick="ToggleVisibility" 
+                class="w-full bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm">
+            Hide Debug Panel
+        </button>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(debugMessage))
+    {
+        <div class="mt-3 p-2 bg-gray-700 rounded text-xs">
+            @debugMessage
+        </div>
+    }
+</div>
+
+@code {
+    private string debugMessage = string.Empty;
+
+    private async Task DebugLocalStorage()
+    {
+        try
+        {
+            var keys = await JSRuntime.InvokeAsync<string[]>("debugLocalStorage");
+            debugMessage = $"Found {keys.Length} items in localStorage. Check console for details.";
+        }
+        catch (Exception ex)
+        {
+            debugMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task ClearLocalStorage()
+    {
+        try
+        {
+            var result = await JSRuntime.InvokeAsync<bool>("clearLocalStorage");
+            debugMessage = result ? "Local storage cleared successfully" : "Failed to clear local storage";
+        }
+        catch (Exception ex)
+        {
+            debugMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task CheckAvailability()
+    {
+        try
+        {
+            var available = await JSRuntime.InvokeAsync<bool>("isLocalStorageAvailable");
+            debugMessage = available ? "Local storage is available" : "Local storage is not available";
+        }
+        catch (Exception ex)
+        {
+            debugMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private void ToggleVisibility()
+    {
+        // This would typically be handled by a parent component
+        // For now, we'll just clear the debug message
+        debugMessage = string.Empty;
+    }
+}

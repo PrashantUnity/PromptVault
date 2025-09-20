@@ -285,18 +285,95 @@ public class PromptService : IPromptService
         await Task.CompletedTask;
     }
 
+    public async Task ResetToDefaultStateAsync()
+    {
+        try
+        {
+            _state = new AppState();
+            await SaveStateToStorageAsync();
+            await LoadDefaultDataAsync();
+            NotifyStateChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PromptService: Error resetting to default state: {ex.Message}");
+        }
+    }
+
+    public async Task<bool> ValidateAndRepairStateAsync()
+    {
+        try
+        {
+            var isValid = IsValidAppState(_state);
+            if (!isValid)
+            {
+                Console.WriteLine("PromptService: Invalid state detected, repairing...");
+                _state = new AppState();
+                await SaveStateToStorageAsync();
+                await LoadDefaultDataAsync();
+                NotifyStateChanged();
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PromptService: Error validating state: {ex.Message}");
+            return false;
+        }
+    }
+
     private async Task LoadStateFromStorageAsync()
     {
-        var savedState = await _localStorage.GetItemAsync<AppState>("promptvault-state");
-        if (savedState != null)
+        try
         {
-            _state = savedState;
+            var savedState = await _localStorage.GetItemAsync<AppState>("promptvault-state");
+            if (savedState != null)
+            {
+                // Validate the loaded state
+                if (IsValidAppState(savedState))
+                {
+                    _state = savedState;
+                }
+                else
+                {
+                    Console.WriteLine("LocalStorageService: Invalid state data found, using default state");
+                    _state = new AppState();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LocalStorageService: Error loading state from storage: {ex.Message}");
+            _state = new AppState();
         }
     }
 
     private async Task SaveStateToStorageAsync()
     {
-        await _localStorage.SetItemAsync("promptvault-state", _state);
+        try
+        {
+            await _localStorage.SetItemAsync("promptvault-state", _state);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"LocalStorageService: Error saving state to storage: {ex.Message}");
+            // Could show a toast notification to the user here
+        }
+    }
+
+    private bool IsValidAppState(AppState state)
+    {
+        if (state == null) return false;
+        
+        // Basic validation
+        if (state.Prompts == null) state.Prompts = new List<Prompt>();
+        if (state.Categories == null) state.Categories = new List<Category>();
+        if (state.Favorites == null) state.Favorites = new List<string>();
+        if (state.UserRatings == null) state.UserRatings = new Dictionary<string, UserRating>();
+        if (state.History == null) state.History = new List<string>();
+        
+        return true;
     }
 
     private async Task LoadDefaultDataAsync()
