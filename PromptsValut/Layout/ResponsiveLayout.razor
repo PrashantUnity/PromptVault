@@ -10,7 +10,7 @@
         <div class="mobile-header fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
             <div class="px-4 py-4 flex items-center justify-between">
                 <!-- Mobile Menu Button -->
-                <button @onclick="ToggleSidebar" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0">
+                <button @onclick="ToggleSidebar" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0 focus-ring" aria-label="Open menu">
                     @((MarkupString)SvgIcons.Menu)
                 </button>
                 
@@ -21,7 +21,7 @@
                 
                 <!-- Mobile Actions -->
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <button @onclick="ToggleTheme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Toggle theme">
+                    <button @onclick="ToggleTheme" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-ring" title="Toggle theme" aria-label="Toggle theme">
                         @if (PromptService.State.Theme == "light")
                         {
                             @((MarkupString)SvgIcons.Moon)
@@ -31,7 +31,7 @@
                             @((MarkupString)SvgIcons.Sun)
                         }
                     </button>
-                    <button @onclick="ShowHelp" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800" title="Help">
+                    <button @onclick="ShowHelp" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus-ring" title="Help" aria-label="Help">
                         @((MarkupString)SvgIcons.HelpCircle)
                     </button>
                 </div>
@@ -94,19 +94,19 @@
         <!-- Mobile Bottom Navigation -->
         <div class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
             <div class="flex items-center justify-around py-2">
-                <button @onclick="ShowAllPrompts" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <button @onclick="ShowAllPrompts" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="All prompts">
                     @((MarkupString)SvgIcons.Grid3x3)
                     <span class="text-xs">All</span>
                 </button>
-                <button @onclick="ShowFavorites" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <button @onclick="ShowFavorites" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="Favorites">
                     @((MarkupString)SvgIcons.Heart)
                     <span class="text-xs">Favorites</span>
                 </button>
-                <button @onclick="ShowHistory" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <button @onclick="ShowHistory" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="Recent">
                     @((MarkupString)SvgIcons.Clock)
                     <span class="text-xs">Recent</span>
                 </button>
-                <button @onclick="ShowSearch" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                <button @onclick="ShowSearch" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="Search">
                     @((MarkupString)SvgIcons.Search)
                     <span class="text-xs">Search</span>
                 </button>
@@ -133,7 +133,7 @@ else
                             PromptVault
                         </h1>
                     </div>
-                    <button @onclick="ToggleSidebar" class="lg:hidden p-2 rounded-md hover:bg-sidebar-accent">
+                    <button @onclick="ToggleSidebar" class="lg:hidden p-2 rounded-md hover:bg-sidebar-accent focus-ring" aria-label="Close sidebar">
                         @((MarkupString)SvgIcons.X)
                     </button>
                 </div>

@@ -10,7 +10,8 @@ public class PromptService : IPromptService
     private readonly IJSRuntime _jsRuntime;
     private readonly HttpClient _httpClient;
     private AppState _state = new();
-    private const string EXTERNAL_DATA_URL = "https://raw.githubusercontent.com/codefrydev/Data/refs/heads/main/Prompt/data.json";
+    private const string EXTERNAL_DATA_URL = "https://raw.githubusercontent.com/codefrydev/Data/refs/heads/main/Prompt/allsources.json";
+    private const string EXTERNAL_BASE_PATH = "https://raw.githubusercontent.com/codefrydev/Data/refs/heads/main/Prompt/";
 
     public event Action? StateChanged;
     public AppState State => _state;
@@ -27,14 +28,15 @@ public class PromptService : IPromptService
             // Filter by category
             if (_state.SelectedCategory != "all")
             {
-                prompts = prompts.Where(p => p.Category == _state.SelectedCategory);
+                var selected = _state.SelectedCategory;
+                prompts = prompts.Where(p => !string.IsNullOrEmpty(p.Category) && p.Category == selected);
             }
 
-            // Filter by search query
+            // Filter by search query (null-safe)
             if (!string.IsNullOrEmpty(_state.SearchQuery))
             {
                 var query = _state.SearchQuery.ToLower();
-                prompts = prompts.Where(p => 
+                prompts = prompts.Where(p =>
                     (!string.IsNullOrEmpty(p.Title) && p.Title.ToLower().Contains(query)) ||
                     (!string.IsNullOrEmpty(p.Content) && p.Content.ToLower().Contains(query)) ||
                     (!string.IsNullOrEmpty(p.Description) && p.Description.ToLower().Contains(query)) ||
@@ -410,15 +412,16 @@ public class PromptService : IPromptService
 
     private async Task LoadDefaultDataAsync()
     {
-        if (!_state.Prompts.Any())
-        {
-            // Always load from external source
-            await LoadExternalDataAsync();
-        }
-        
+        // Always load categories from external source
         if (!_state.Categories.Any())
         {
-            await LoadDefaultCategoriesAsync();
+            await LoadExternalCategoriesAsync();
+        }
+
+        // Then load prompts strictly from category file paths (no fallback)
+        if (!_state.Prompts.Any())
+        {
+            await LoadPromptsFromCategoryFilesAsync();
         }
     }
 
@@ -553,7 +556,7 @@ public class PromptService : IPromptService
 
     private void UpdateCategoryCounts()
     {
-        foreach (var category in _state.Categories)
+            foreach (var category in _state.Categories)
         {
             if (category.Id == "all")
             {
@@ -561,32 +564,160 @@ public class PromptService : IPromptService
             }
             else
             {
-                category.PromptCount = _state.Prompts.Count(p => p.Category == category.Id);
+                    category.PromptCount = _state.Prompts.Count(p => !string.IsNullOrEmpty(p.Category) && p.Category == category.Id);
             }
         }
     }
 
-    private Task LoadDefaultCategoriesAsync()
+    private async Task<bool> LoadPromptsFromCategoryFilesAsync()
     {
-        var defaultCategories = new List<Category>
+        try
         {
-            new Category { Id = "all", Name = "All Prompts", Description = "View all available prompts", Icon = "LayoutGrid", Color = "blue", SortOrder = 0, PromptCount = 0 },
-            new Category { Id = "marketing", Name = "Marketing", Description = "Marketing and promotional content", Icon = "TrendingUp", Color = "pink", SortOrder = 1, PromptCount = 0 },
-            new Category { Id = "development", Name = "Development", Description = "Code generation and development tools", Icon = "Code2", Color = "green", SortOrder = 2, PromptCount = 0 },
-            new Category { Id = "creative-writing", Name = "Creative Writing", Description = "Creative writing and storytelling", Icon = "PenTool", Color = "purple", SortOrder = 3, PromptCount = 0 },
-            new Category { Id = "business", Name = "Business", Description = "Business strategy and analysis", Icon = "Briefcase", Color = "blue", SortOrder = 4, PromptCount = 0 },
-            new Category { Id = "education", Name = "Education", Description = "Educational content and learning", Icon = "GraduationCap", Color = "green", SortOrder = 5, PromptCount = 0 },
-            new Category { Id = "technology", Name = "Technology", Description = "Technology and technical documentation", Icon = "Cpu", Color = "orange", SortOrder = 6, PromptCount = 0 },
-            new Category { Id = "fun", Name = "Fun", Description = "Entertainment and creative content", Icon = "Sparkles", Color = "yellow", SortOrder = 7, PromptCount = 0 },
-            new Category { Id = "productivity", Name = "Productivity", Description = "Productivity and efficiency tools", Icon = "Zap", Color = "purple", SortOrder = 8, PromptCount = 0 },
-            new Category { Id = "data-analysis", Name = "Data Analysis", Description = "Data visualization and analytics", Icon = "BarChart3", Color = "blue", SortOrder = 9, PromptCount = 0 },
-            new Category { Id = "testing", Name = "Testing", Description = "Test prompts and examples", Icon = "CheckCircle", Color = "gray", SortOrder = 10, PromptCount = 0 },
-            new Category { Id = "general", Name = "General", Description = "General purpose prompts", Icon = "FileText", Color = "gray", SortOrder = 11, PromptCount = 0 }
-        };
+            if (_state.Categories == null || _state.Categories.Count == 0)
+            {
+                return false;
+            }
 
-        _state.Categories.AddRange(defaultCategories);
-        return Task.CompletedTask;
+            var aggregated = new List<Prompt>();
+
+            foreach (var category in _state.Categories)
+            {
+                // Skip the synthetic "all" category
+                if (string.Equals(category.Id, "all", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(category.FilePathName))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var response = await _httpClient.GetAsync(category.FilePathName);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        continue;
+                    }
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var prompts = await ParseExternalDataAsync(json) ?? new List<Prompt>();
+
+                    foreach (var prompt in prompts)
+                    {
+                        if (string.IsNullOrEmpty(prompt.Id))
+                            prompt.Id = Guid.NewGuid().ToString();
+                        if (prompt.CreatedAt == default)
+                            prompt.CreatedAt = DateTime.UtcNow;
+                        if (prompt.UpdatedAt == default)
+                            prompt.UpdatedAt = DateTime.UtcNow;
+                        // Always set the prompt category to the normalized category Id
+                        prompt.Category = category.Id;
+                        if (string.IsNullOrEmpty(prompt.Author))
+                            prompt.Author = "External Source";
+                    }
+
+                    aggregated.AddRange(prompts);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to load prompts for category '{category.Id}': {ex.Message}");
+                }
+            }
+
+            if (aggregated.Count > 0)
+            {
+                _state.Prompts.AddRange(aggregated);
+                UpdateCategoryCounts();
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading prompts from category files: {ex.Message}");
+            return false;
+        }
     }
+
+    private async Task<bool> LoadExternalCategoriesAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync(EXTERNAL_DATA_URL);
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonContent = await response.Content.ReadAsStringAsync();
+
+                using var document = JsonDocument.Parse(jsonContent);
+                if (document.RootElement.ValueKind == JsonValueKind.Object &&
+                    document.RootElement.TryGetProperty("categories", out var categoriesElement) &&
+                    categoriesElement.ValueKind == JsonValueKind.Array)
+                {
+                    var categories = JsonSerializer.Deserialize<List<Category>>(categoriesElement.GetRawText(), new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new List<Category>();
+
+                    foreach (var category in categories)
+                    {
+                        // Always normalize Id from Name (slug) for consistent filtering keys
+                        if (!string.IsNullOrWhiteSpace(category.Name))
+                        {
+                            var slug = category.Name.Trim().ToLower();
+                            slug = string.Join("-", slug.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                            category.Id = slug;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(category.FilePathName))
+                        {
+                            if (!category.FilePathName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
+                                !category.FilePathName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                            {
+                                category.FilePathName = EXTERNAL_BASE_PATH + category.FilePathName.TrimStart('/');
+                            }
+                        }
+                    }
+
+                    // Always inject synthetic "all" category for UI filtering
+                    if (!categories.Any(c => string.Equals(c.Id, "all", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        categories.Insert(0, new Category
+                        {
+                            Id = "all",
+                            Name = "All Prompts",
+                            Description = "View all available prompts",
+                            Icon = "LayoutGrid",
+                            Color = "blue",
+                            SortOrder = 0,
+                            PromptCount = 0
+                        });
+                    }
+
+                    _state.Categories.Clear();
+                    _state.Categories.AddRange(categories.OrderBy(c => c.SortOrder));
+                    
+                    // Ensure selected category is valid
+                    if (!_state.Categories.Any(c => c.Id == _state.SelectedCategory))
+                    {
+                        _state.SelectedCategory = "all";
+                    }
+                    UpdateCategoryCounts();
+                    return true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load external categories: {ex.Message}");
+        }
+
+        return false;
+    }
+
+    // No local fallback categories; categories must come from external source
 
     public async Task SetShowFavoritesOnlyAsync(bool showFavoritesOnly)
     {
@@ -607,14 +738,13 @@ public class PromptService : IPromptService
             var existingRatings = _state.UserRatings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             
             _state.Prompts.Clear();
-            
-            // Always load from external source
-            var success = await LoadExternalDataAsync();
-            
-            if (!success)
-            {
-                Console.WriteLine("PromptService: Failed to load external data during refresh");
-            }
+            _state.Categories.Clear();
+
+            // Load categories strictly from external
+            await LoadExternalCategoriesAsync();
+
+            // Then load prompts strictly from category files
+            await LoadPromptsFromCategoryFilesAsync();
             
             // Restore user data
             _state.Favorites = existingFavorites;

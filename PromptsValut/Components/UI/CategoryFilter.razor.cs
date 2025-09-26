@@ -40,8 +40,9 @@ public partial class CategoryFilter : ComponentBase, IDisposable
         {
             return PromptService.State.Prompts.Count;
         }
-        
-        return PromptService.State.Prompts.Count(p => p.Category == categoryId);
+
+        // Gracefully handle missing categories on prompts or null ids
+        return PromptService.State.Prompts.Count(p => !string.IsNullOrEmpty(p.Category) && p.Category == categoryId);
     }
 
     public void Dispose()

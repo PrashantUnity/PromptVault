@@ -6,8 +6,8 @@
         <div class="modal-content max-w-6xl w-full max-h-[90vh]" @onclick:stopPropagation="true">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-semibold flex items-center gap-2">
-                        @((MarkupString)SvgIcons.Heart)
+                    <h2 class="text-2xl font-semibold flex items-center gap-3 leading-tight">
+                        <span class="inline-flex items-center justify-center flex-shrink-0">@((MarkupString)SvgIcons.Heart)</span>
                         My Favorites (@PromptService.State.Favorites.Count)
                     </h2>
                     <button @onclick="CloseModal" class="p-2 rounded-md hover:bg-accent">
