@@ -413,6 +413,30 @@ public static class SvgIcons
                                        </svg>
                                    """;
 
+    // Generator Icons
+    public const string Wand = """
+                               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                       <path d="M15 4V2m0 18v-2m8-8h2M3 12h2m15.364-6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 12.728l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                   </svg>
+                               """;
+
+    public const string Shuffle = """
+                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path d="M16 3h5v5"></path>
+                                         <path d="M8 3H3v5"></path>
+                                         <path d="M12 22v-8.3a4 4 0 0 0-1.172-2.872L3 3"></path>
+                                         <path d="M21 3l-8.828 8.828a4 4 0 0 0-1.172 2.872V22"></path>
+                                     </svg>
+                                 """;
+
+    public const string Info = """
+                              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <circle cx="12" cy="12" r="10"></circle>
+                                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                  </svg>
+                              """;
+
     // Method to get icon with custom class
     public static string GetIcon(string iconName, string customClass = "")
     {
@@ -473,6 +497,9 @@ public static class SvgIcons
             "Sparkles" => Sparkles.Replace("h-4 w-4", customClass),
             "Zap" => Zap.Replace("h-4 w-4", customClass),
             "BarChart3" => BarChart3.Replace("h-4 w-4", customClass),
+            "wand" => Wand.Replace("h-4 w-4", customClass),
+            "shuffle" => Shuffle.Replace("h-4 w-4", customClass),
+            "info" => Info.Replace("h-4 w-4", customClass),
             _ => ""
         };
     }

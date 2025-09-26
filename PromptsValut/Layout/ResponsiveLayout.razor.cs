@@ -11,6 +11,7 @@ public partial class ResponsiveLayout : LayoutComponentBase, IDisposable
     [Inject] private IPromptService PromptService { get; set; } = default!;
     [Inject] private IBackgroundRefreshService BackgroundRefreshService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private Header? header;
     private CategoryFilter? categoryFilter;
@@ -132,6 +133,12 @@ public partial class ResponsiveLayout : LayoutComponentBase, IDisposable
     {
         await PromptService.SetShowFavoritesOnlyAsync(false);
         await PromptService.SetSelectedCategoryAsync("all");
+    }
+
+    private async Task NavigateToGenerator()
+    {
+        Navigation.NavigateTo("generator");
+        await Task.CompletedTask;
     }
 
     private void ShowSearch()

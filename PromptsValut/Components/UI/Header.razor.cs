@@ -15,6 +15,7 @@ public partial class Header : ComponentBase
     [Inject] private IPromptService PromptService { get; set; } = default!;
     [Inject] private IBackgroundRefreshService BackgroundRefreshService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private async Task ToggleSidebar()
     {
@@ -29,6 +30,12 @@ public partial class Header : ComponentBase
     private async Task ShowHelp()
     {
         await OnShowHelp.InvokeAsync();
+    }
+
+    private async Task NavigateToGenerator()
+    {
+        Navigation.NavigateTo("/generator");
+        await Task.CompletedTask;
     }
 
     private async Task ShowFavorites()

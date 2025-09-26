@@ -1,0 +1,537 @@
+@page "/generator"
+@using PromptsValut.Constants
+@using PromptsValut.Models
+@using PromptsValut.Services
+@using PromptsValut.Components.UI
+@using PromptsValut.Components.Modals
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@inject IPromptService PromptService
+@inject IPlaceholderParserService PlaceholderParserService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+<PageTitle>Prompt Generator - PromptVault</PageTitle>
+
+<div class="max-w-4xl mx-auto p-4">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                @((MarkupString)SvgIcons.GetIcon("wand", "h-6 w-6 text-white"))
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Prompt Generator</h1>
+                <p class="text-gray-600 dark:text-gray-400">Create and customize AI prompts for your projects</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Generator Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+        <form @onsubmit="GeneratePrompt" class="space-y-6">
+            <!-- Basic Information -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                    @((MarkupString)SvgIcons.GetIcon("info", "h-5 w-5 text-blue-500 dark:text-blue-400"))
+                    Basic Information
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Title *</label>
+                        <input @bind="promptTemplate.Title" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter prompt title" required />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Category *</label>
+                        @if (PromptService.Categories.Any())
+                        {
+                            <select @bind="promptTemplate.Category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                <option value="">Select a category</option>
+                                @foreach (var category in PromptService.Categories.Where(c => c.Id != "all"))
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-400 rounded-md flex items-center gap-2">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                                Loading categories...
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Description</label>
+                    <textarea @bind="promptTemplate.Description" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="2" placeholder="Brief description of what this prompt does"></textarea>
+                </div>
+            </div>
+
+            <!-- Prompt Content -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                    @((MarkupString)SvgIcons.GetIcon("file-text", "h-5 w-5 text-green-500 dark:text-green-400"))
+                    Prompt Content
+                </h3>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Content Template *</label>
+                    
+                    <!-- Interactive Content Tools -->
+                    <div class="mb-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <div class="flex flex-wrap gap-2">
+                            <!-- Text Formatting -->
+                            <div class="flex gap-1 border-r border-gray-300 dark:border-gray-600 pr-2 mr-2">
+                                <button type="button" @onclick="@(() => InsertText("**", "**"))" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Bold">
+                                    <strong>B</strong>
+                                </button>
+                                <button type="button" @onclick="@(() => InsertText("*", "*"))" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Italic">
+                                    <em>I</em>
+                                </button>
+                                <button type="button" @onclick="@(() => InsertText("`", "`"))" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Code">
+                                    &lt;/&gt;
+                                </button>
+                            </div>
+                            
+                            <!-- Lists -->
+                            <div class="flex gap-1 border-r border-gray-300 dark:border-gray-600 pr-2 mr-2">
+                                <button type="button" @onclick="InsertBulletList" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Bullet List">
+                                    • List
+                                </button>
+                                <button type="button" @onclick="InsertNumberedList" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Numbered List">
+                                    1. List
+                                </button>
+                            </div>
+                            
+                            <!-- Structure -->
+                            <div class="flex gap-1 border-r border-gray-300 dark:border-gray-600 pr-2 mr-2">
+                                <button type="button" @onclick="InsertHeading" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Heading">
+                                    H1
+                                </button>
+                                <button type="button" @onclick="InsertQuote" class="px-2 py-1 text-xs bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-gray-100 dark:hover:bg-gray-500 transition-colors" title="Quote">
+                                    "
+                                </button>
+                            </div>
+                            
+                            <!-- Common Placeholders -->
+                            <div class="flex gap-1">
+                                <button type="button" @onclick="@(() => InsertPlaceholder("topic"))" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-blue-800 dark:text-blue-200" title="Add Topic Placeholder">
+                                    [topic]
+                                </button>
+                                <button type="button" @onclick="@(() => InsertPlaceholder("tone"))" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-blue-800 dark:text-blue-200" title="Add Tone Placeholder">
+                                    [tone]
+                                </button>
+                                <button type="button" @onclick="@(() => InsertPlaceholder("audience"))" class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-blue-800 dark:text-blue-200" title="Add Audience Placeholder">
+                                    [audience]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <textarea @bind="promptTemplate.Content" @ref="contentTextarea" id="contentTextarea" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm" rows="8" placeholder="Enter your prompt template here. Use [placeholder] for dynamic content..." required></textarea>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Use [placeholder] syntax for dynamic content (e.g., [topic], [tone], [length])</p>
+                </div>
+                
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                    @((MarkupString)SvgIcons.GetIcon("settings", "h-5 w-5 text-orange-500 dark:text-orange-400"))
+                    Advanced Settings
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Difficulty</label>
+                        <select @bind="promptTemplate.Difficulty" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Estimated Time</label>
+                        <input @bind="promptTemplate.EstimatedTime" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="e.g., 5-10 minutes" />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Author</label>
+                        <input @bind="promptTemplate.Author" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Your name" />
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Tags (comma-separated)</label>
+                    <input @bind="tagsInput" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="e.g., email, marketing, campaign" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Usage Notes</label>
+                    <textarea @bind="promptTemplate.UsageNotes" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="Any special instructions or tips for using this prompt"></textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center gap-2 text-lg font-medium shadow-lg hover:shadow-xl">
+                    @((MarkupString)SvgIcons.GetIcon("wand", "h-5 w-5"))
+                    Generate Prompt
+                </button>
+                <button type="button" @onclick="PreviewPrompt" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-200 flex items-center gap-2 font-medium shadow-lg hover:shadow-xl">
+                    @((MarkupString)SvgIcons.GetIcon("eye", "h-5 w-5"))
+                    Preview
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Generated Prompt JSON -->
+    @if (!string.IsNullOrEmpty(generatedPrompt))
+    {
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                    @((MarkupString)SvgIcons.GetIcon("code", "h-5 w-5 text-blue-500 dark:text-blue-400"))
+                    Generated Prompt JSON
+                </h3>
+                <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">JSON Format</span>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 overflow-x-auto">@generatedPrompt</div>
+            <div class="mt-4 flex gap-2">
+                <button @onclick="CopyToClipboard" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center gap-2 transition-colors">
+                    @((MarkupString)SvgIcons.GetIcon("copy", "h-4 w-4"))
+                    Copy JSON
+                </button>
+                <button @onclick="ClearPreview" class="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center gap-2 transition-colors">
+                    @((MarkupString)SvgIcons.GetIcon("x", "h-4 w-4"))
+                    Clear
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Snackbar Notifications -->
+<Snackbar @ref="snackbar" IsVisible="showSnackbar" Title="@snackbarTitle" Message="@snackbarMessage" Type="@snackbarType" OnHide="OnSnackbarHide" />
+
+<!-- Prompt Detail Modal -->
+<PromptDetailModal @ref="promptDetailModal" IsVisible="showPromptDetail" OnClose="ClosePromptDetail" />
+
+@code {
+    private Prompt promptTemplate = new();
+    private string generatedPrompt = string.Empty;
+    private string tagsInput = string.Empty;
+    private bool isInitialized = false;
+
+    // Modal references
+    private PromptDetailModal? promptDetailModal;
+    private bool showPromptDetail = false;
+
+    // Snackbar properties
+    private Snackbar? snackbar;
+    private bool showSnackbar = false;
+    private string snackbarTitle = string.Empty;
+    private string snackbarMessage = string.Empty;
+    private SnackbarType snackbarType = SnackbarType.Info;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Ensure PromptService is initialized and categories are loaded
+        await PromptService.InitializeAsync();
+        InitializeTemplate();
+        isInitialized = true;
+        StateHasChanged();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            PromptService.StateChanged += OnStateChanged;
+        }
+    }
+
+    private void OnStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    private void InitializeTemplate()
+    {
+        promptTemplate = new Prompt
+        {
+            Title = "Custom Prompt",
+            Category = "general",
+            Description = "A custom generated prompt",
+            Content = "You are a helpful assistant. Please help me with the following task: [task description]",
+            Difficulty = "beginner",
+            EstimatedTime = "5-10 minutes",
+            Author = "Prompt Generator",
+            UsageNotes = "Replace [task description] with your specific task description.",
+            Placeholders = new[] { "task description" }
+        };
+        
+    }
+
+    private void GeneratePrompt()
+    {
+        if (string.IsNullOrEmpty(promptTemplate.Content))
+        {
+            ShowSnackbar("Error", "Please enter prompt content before generating", SnackbarType.Error);
+            return;
+        }
+
+        // Extract placeholders from content automatically
+        var placeholderRegex = new Regex(@"\[([^\]]+)\]");
+        var matches = placeholderRegex.Matches(promptTemplate.Content);
+        var extractedPlaceholders = matches.Cast<Match>()
+            .Select(m => m.Groups[1].Value)
+            .Distinct()
+            .ToArray();
+        
+        promptTemplate.Placeholders = extractedPlaceholders;
+        
+        // Update tags
+        if (!string.IsNullOrEmpty(tagsInput))
+        {
+            promptTemplate.Tags = tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(t => t.Trim()).ToArray();
+        }
+
+        // Serialize the complete prompt template object to JSON (with original content and placeholders)
+        generatedPrompt = JsonSerializer.Serialize(promptTemplate, new JsonSerializerOptions { WriteIndented = true });
+
+        ShowSnackbar("Generated!", "Prompt JSON generated successfully", SnackbarType.Success);
+    }
+
+    private async Task PreviewPrompt()
+    {
+        if (string.IsNullOrEmpty(promptTemplate.Content))
+        {
+            ShowSnackbar("Error", "Please enter prompt content before previewing", SnackbarType.Error);
+            return;
+        }
+
+        // Create a temporary prompt for preview
+        var previewPrompt = new Prompt
+        {
+            Id = "preview-" + Guid.NewGuid().ToString("N")[..8],
+            Title = promptTemplate.Title + " (Preview)",
+            Content = promptTemplate.Content,
+            Category = promptTemplate.Category,
+            Description = promptTemplate.Description,
+            Tags = promptTemplate.Tags,
+            Author = promptTemplate.Author,
+            Difficulty = promptTemplate.Difficulty,
+            UsageNotes = promptTemplate.UsageNotes,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            IsPublic = false
+        };
+
+        // Show the prompt in the existing modal
+        if (promptDetailModal != null)
+        {
+            await promptDetailModal.ShowPrompt(previewPrompt);
+            showPromptDetail = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ClosePromptDetail()
+    {
+        showPromptDetail = false;
+        await Task.CompletedTask;
+    }
+
+    private string GetSampleValue(string placeholder, string fieldType = "text")
+    {
+        var lowerPlaceholder = placeholder.ToLower();
+        
+        // Type-specific sample values
+        switch (fieldType.ToLower())
+        {
+            case "email":
+                return "user@example.com";
+            case "url":
+                return "https://example.com";
+            case "number":
+                return "42";
+            case "textarea":
+                return "Detailed description here...";
+            case "select":
+                return GetSelectSampleValue(lowerPlaceholder);
+            default:
+                return GetTextSampleValue(lowerPlaceholder);
+        }
+    }
+
+    private string GetTextSampleValue(string placeholder)
+    {
+        return placeholder switch
+        {
+            "task" or "task description" => "write a professional email",
+            "topic" => "artificial intelligence",
+            "tone" => "professional",
+            "length" => "200 words",
+            "audience" => "business professionals",
+            "style" => "formal",
+            "format" => "bullet points",
+            "language" => "English",
+            "purpose" => "informational",
+            "context" => "business meeting",
+            "company" or "business" => "TechCorp Inc.",
+            "product" => "mobile application",
+            "service" => "consulting services",
+            "industry" => "technology",
+            "location" => "San Francisco",
+            "date" => "2024-01-15",
+            "time" => "2:00 PM",
+            "budget" => "$10,000",
+            "timeline" => "3 months",
+            "goal" or "objective" => "increase user engagement",
+            _ => $"sample_{placeholder.Replace(" ", "_")}"
+        };
+    }
+
+    private string GetSelectSampleValue(string placeholder)
+    {
+        return placeholder switch
+        {
+            var p when p.Contains("genre") => "Fiction",
+            var p when p.Contains("platform") => "Facebook",
+            var p when p.Contains("style") || p.Contains("tone") => "Professional",
+            var p when p.Contains("level") || p.Contains("difficulty") => "Beginner",
+            var p when p.Contains("frequency") => "Weekly",
+            var p when p.Contains("size") => "Medium",
+            var p when p.Contains("priority") => "High",
+            var p when p.Contains("business type") || p.Contains("company type") => "SaaS",
+            var p when p.Contains("industry") => "Technology",
+            var p when p.Contains("budget") => "$15K - $50K",
+            var p when p.Contains("timeline") || p.Contains("duration") => "1 month",
+            var p when p.Contains("goals") || p.Contains("purpose") => "Lead Generation",
+            _ => "Option 1"
+        };
+    }
+
+
+
+    private async Task CopyToClipboard()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", generatedPrompt);
+        ShowSnackbar("Copied!", "Prompt JSON copied to clipboard", SnackbarType.Success);
+    }
+
+    private void ClearPreview()
+    {
+        generatedPrompt = string.Empty;
+    }
+
+
+    // Snackbar methods
+    private void ShowSnackbar(string title, string message, SnackbarType type)
+    {
+        snackbarTitle = title;
+        snackbarMessage = message;
+        snackbarType = type;
+        showSnackbar = true;
+        StateHasChanged();
+    }
+
+    private void OnSnackbarHide()
+    {
+        showSnackbar = false;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        PromptService.StateChanged -= OnStateChanged;
+    }
+
+    // Interactive Content Methods
+    private ElementReference contentTextarea;
+
+    private async Task InsertText(string before, string after)
+    {
+        await JSRuntime.InvokeVoidAsync("insertTextAtCursor", "contentTextarea", before, after);
+    }
+
+    private async Task InsertPlaceholder(string placeholderName)
+    {
+        await JSRuntime.InvokeVoidAsync("insertTextAtCursor", "contentTextarea", $"[{placeholderName}]", "");
+    }
+
+    private async Task InsertBulletList()
+    {
+        await JSRuntime.InvokeVoidAsync("insertTextAtEnd", "contentTextarea", "• [item 1]\n• [item 2]\n• [item 3]");
+    }
+
+    private async Task InsertNumberedList()
+    {
+        await JSRuntime.InvokeVoidAsync("insertTextAtEnd", "contentTextarea", "1. [item 1]\n2. [item 2]\n3. [item 3]");
+    }
+
+    private async Task InsertHeading()
+    {
+        await JSRuntime.InvokeVoidAsync("insertTextAtEnd", "contentTextarea", "# [heading text]");
+    }
+
+    private async Task InsertQuote()
+    {
+        await JSRuntime.InvokeVoidAsync("insertTextAtEnd", "contentTextarea", "> [quote text]");
+    }
+}
+
+<script>
+    window.insertTextAtCursor = function(textareaId, beforeText, afterText) {
+        const textarea = document.getElementById(textareaId);
+        if (!textarea) return;
+        
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        const before = beforeText || '';
+        const after = afterText || '';
+        
+        const newText = textarea.value.substring(0, start) + before + selectedText + after + textarea.value.substring(end);
+        textarea.value = newText;
+        
+        // Set cursor position after the inserted text
+        const newCursorPos = start + before.length + selectedText.length + after.length;
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+        
+        // Trigger input event to update Blazor binding
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Focus back to textarea
+        textarea.focus();
+    };
+    
+    window.insertTextAtEnd = function(textareaId, text) {
+        const textarea = document.getElementById(textareaId);
+        if (!textarea) return;
+        
+        const currentValue = textarea.value;
+        const newValue = currentValue + (currentValue ? '\n' : '') + text;
+        textarea.value = newValue;
+        
+        // Set cursor to end
+        textarea.setSelectionRange(newValue.length, newValue.length);
+        
+        // Trigger input event to update Blazor binding
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Focus back to textarea
+        textarea.focus();
+    };
+</script>

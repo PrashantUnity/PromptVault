@@ -78,6 +78,14 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Mobile Generator Button -->
+                <div class="mt-4">
+                    <button @onclick="NavigateToGenerator" class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                        @((MarkupString)SvgIcons.GetIcon("wand", "h-5 w-5"))
+                        <span class="font-medium">Prompt Generator</span>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -98,6 +106,10 @@
                     @((MarkupString)SvgIcons.Grid3x3)
                     <span class="text-xs">All</span>
                 </button>
+                <button @onclick="NavigateToGenerator" class="flex flex-col items-center gap-1 p-2 rounded-lg bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 hover:from-purple-200 hover:to-blue-200 dark:hover:from-purple-800/40 dark:hover:to-blue-800/40 transition-colors focus-ring" aria-label="Generator">
+                    @((MarkupString)SvgIcons.GetIcon("wand", "h-4 w-4 text-purple-700 dark:text-purple-300"))
+                    <span class="text-xs text-purple-700 dark:text-purple-300">Generate</span>
+                </button>
                 <button @onclick="ShowFavorites" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="Favorites">
                     @((MarkupString)SvgIcons.Heart)
                     <span class="text-xs">Favorites</span>
@@ -105,10 +117,6 @@
                 <button @onclick="ShowHistory" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="Recent">
                     @((MarkupString)SvgIcons.Clock)
                     <span class="text-xs">Recent</span>
-                </button>
-                <button @onclick="ShowSearch" class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-ring" aria-label="Search">
-                    @((MarkupString)SvgIcons.Search)
-                    <span class="text-xs">Search</span>
                 </button>
             </div>
         </div>
@@ -158,6 +166,14 @@ else
                             <span class="font-medium">@PromptService.Categories.Count</span>
                         </div>
                     </div>
+                </div>
+                
+                <!-- Generator Button -->
+                <div class="mt-6">
+                    <button @onclick="NavigateToGenerator" class="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                        @((MarkupString)SvgIcons.GetIcon("wand", "h-5 w-5"))
+                        <span class="font-medium">Prompt Generator</span>
+                    </button>
                 </div>
             </div>
         </div>

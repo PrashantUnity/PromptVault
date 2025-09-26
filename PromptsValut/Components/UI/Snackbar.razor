@@ -1,0 +1,84 @@
+@using PromptsValut.Constants
+@using PromptsValut.Models
+
+@if (IsVisible)
+{
+    <div class="fixed bottom-4 right-4 z-50 max-w-sm w-full">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 transform transition-all duration-300 @(IsVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0")">
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                    @if (Type == SnackbarType.Success)
+                    {
+                        <div class="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                            @((MarkupString)SvgIcons.GetIcon("check-circle", "h-4 w-4 text-green-600 dark:text-green-400"))
+                        </div>
+                    }
+                    else if (Type == SnackbarType.Error)
+                    {
+                        <div class="w-6 h-6 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                            @((MarkupString)SvgIcons.GetIcon("alert-triangle", "h-4 w-4 text-red-600 dark:text-red-400"))
+                        </div>
+                    }
+                    else if (Type == SnackbarType.Info)
+                    {
+                        <div class="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            @((MarkupString)SvgIcons.GetIcon("info", "h-4 w-4 text-blue-600 dark:text-blue-400"))
+                        </div>
+                    }
+                    else if (Type == SnackbarType.Warning)
+                    {
+                        <div class="w-6 h-6 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center">
+                            @((MarkupString)SvgIcons.GetIcon("alert", "h-4 w-4 text-yellow-600 dark:text-yellow-400"))
+                        </div>
+                    }
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    @if (!string.IsNullOrEmpty(Title))
+                    {
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">@Title</h4>
+                    }
+                    <p class="text-sm text-gray-600 dark:text-gray-400">@Message</p>
+                </div>
+                
+                <button @onclick="Hide" class="flex-shrink-0 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    @((MarkupString)SvgIcons.GetIcon("x", "h-4 w-4 text-gray-400 dark:text-gray-500"))
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public SnackbarType Type { get; set; } = SnackbarType.Info;
+    [Parameter] public int Duration { get; set; } = 4000; // 4 seconds
+    [Parameter] public EventCallback OnHide { get; set; }
+
+    private Timer? _timer;
+
+    protected override void OnParametersSet()
+    {
+        if (IsVisible && Duration > 0)
+        {
+            _timer?.Dispose();
+            _timer = new Timer(async _ => await InvokeAsync(Hide), null, Duration, Timeout.Infinite);
+        }
+    }
+
+    private async Task Hide()
+    {
+        _timer?.Dispose();
+        _timer = null;
+        IsVisible = false;
+        await OnHide.InvokeAsync();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}
