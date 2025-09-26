@@ -77,7 +77,17 @@ public class PromptService : IPromptService
         try
         {
             await LoadStateFromStorageAsync();
-            await LoadDefaultDataAsync();
+            
+            // Check if cache is stale and needs refresh
+            if (await IsCacheStaleAsync())
+            {
+                Console.WriteLine("PromptService: Cache is stale, refreshing data...");
+                await RefreshExternalDataAsync();
+            }
+            else
+            {
+                await LoadDefaultDataAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -763,6 +773,82 @@ public class PromptService : IPromptService
         }
     }
 
+
+    private async Task<bool> IsCacheStaleAsync()
+    {
+        try
+        {
+            if (_state.CacheMetadata == null)
+            {
+                _state.CacheMetadata = new CacheMetadata();
+                return true; // No cache metadata means stale
+            }
+
+            var cacheMetadata = _state.CacheMetadata;
+            
+            // If never refreshed, consider stale
+            if (cacheMetadata.LastBackgroundRefresh == DateTime.MinValue)
+                return true;
+
+            // Check if refresh interval has passed
+            var timeSinceLastRefresh = DateTime.UtcNow - cacheMetadata.LastBackgroundRefresh;
+            var refreshInterval = TimeSpan.FromMinutes(cacheMetadata.RefreshIntervalMinutes);
+            
+            var isStale = timeSinceLastRefresh >= refreshInterval;
+            cacheMetadata.IsStale = isStale;
+            
+            return isStale;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"PromptService: Error checking cache staleness: {ex.Message}");
+            return true; // Default to stale on error
+        }
+    }
+
+    public async Task<bool> IsDataFreshAsync()
+    {
+        return !await IsCacheStaleAsync();
+    }
+
+    public async Task<TimeSpan> GetTimeUntilNextRefreshAsync()
+    {
+        try
+        {
+            if (_state.CacheMetadata == null || _state.CacheMetadata.LastBackgroundRefresh == DateTime.MinValue)
+                return TimeSpan.Zero;
+
+            var timeSinceLastRefresh = DateTime.UtcNow - _state.CacheMetadata.LastBackgroundRefresh;
+            var refreshInterval = TimeSpan.FromMinutes(_state.CacheMetadata.RefreshIntervalMinutes);
+            var timeUntilRefresh = refreshInterval - timeSinceLastRefresh;
+            
+            return timeUntilRefresh > TimeSpan.Zero ? timeUntilRefresh : TimeSpan.Zero;
+        }
+        catch
+        {
+            return TimeSpan.Zero;
+        }
+    }
+
+    public async Task SetRefreshIntervalAsync(int minutes)
+    {
+        if (_state.CacheMetadata == null)
+            _state.CacheMetadata = new CacheMetadata();
+            
+        _state.CacheMetadata.RefreshIntervalMinutes = Math.Max(1, minutes);
+        await SaveStateToStorageAsync();
+        NotifyStateChanged();
+    }
+
+    public async Task EnableBackgroundRefreshAsync(bool enabled)
+    {
+        if (_state.CacheMetadata == null)
+            _state.CacheMetadata = new CacheMetadata();
+            
+        _state.CacheMetadata.BackgroundRefreshEnabled = enabled;
+        await SaveStateToStorageAsync();
+        NotifyStateChanged();
+    }
 
     private void NotifyStateChanged()
     {

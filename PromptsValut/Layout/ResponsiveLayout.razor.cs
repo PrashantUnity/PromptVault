@@ -9,6 +9,7 @@ namespace PromptsValut.Layout;
 public partial class ResponsiveLayout : LayoutComponentBase, IDisposable
 {
     [Inject] private IPromptService PromptService { get; set; } = default!;
+    [Inject] private IBackgroundRefreshService BackgroundRefreshService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private Header? header;
@@ -21,6 +22,10 @@ public partial class ResponsiveLayout : LayoutComponentBase, IDisposable
     {
         PromptService.StateChanged += StateHasChanged;
         await CheckScreenSize();
+        
+        // Initialize the app and start background refresh service
+        await PromptService.InitializeAsync();
+        await BackgroundRefreshService.StartAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -142,6 +147,16 @@ public partial class ResponsiveLayout : LayoutComponentBase, IDisposable
     public void Dispose()
     {
         PromptService.StateChanged -= StateHasChanged;
+        
+        // Stop background refresh service
+        try
+        {
+            BackgroundRefreshService.StopAsync().Wait();
+        }
+        catch
+        {
+            // Ignore errors during cleanup
+        }
         
         // Clean up resize listener to prevent memory leaks
         try

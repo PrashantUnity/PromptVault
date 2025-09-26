@@ -13,4 +13,15 @@ public class AppState
     public bool IsLoading { get; set; } = false;
     public string SortBy { get; set; } = "newest";
     public bool ShowFavoritesOnly { get; set; } = false;
+    public CacheMetadata CacheMetadata { get; set; } = new();
+}
+
+public class CacheMetadata
+{
+    public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
+    public DateTime LastBackgroundRefresh { get; set; } = DateTime.MinValue;
+    public string DataVersion { get; set; } = string.Empty;
+    public bool IsStale { get; set; } = false;
+    public int RefreshIntervalMinutes { get; set; } = 60; // Default 1 hour
+    public bool BackgroundRefreshEnabled { get; set; } = true;
 }

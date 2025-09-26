@@ -64,11 +64,27 @@
 
             <!-- Right section: Controls -->
             <div class="flex items-center gap-2">
+                <!-- Cache Status Indicator -->
+                <div class="flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <div class="w-2 h-2 rounded-full @(GetCacheStatusColor().Replace("text-", "bg-"))"></div>
+                    <span class="text-xs font-medium @GetCacheStatusColor()">@GetCacheStatusText()</span>
+                </div>
+                
                 <button @onclick="ShowFavorites" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 focus-ring" title="View Favorites" aria-label="Favorites">
                     @((MarkupString)SvgIcons.GetIcon("heart", "h-5 w-5"))
                 </button>
                 <button @onclick="RefreshData" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 focus-ring" title="Refresh External Data" aria-label="Refresh">
                     @((MarkupString)SvgIcons.GetIcon("refresh", "h-5 w-5"))
+                </button>
+                <button @onclick="ToggleBackgroundRefresh" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 focus-ring" title="Toggle Background Refresh" aria-label="Background Refresh">
+                    @if (BackgroundRefreshService.IsEnabled)
+                    {
+                        @((MarkupString)SvgIcons.GetIcon("play", "h-5 w-5 text-green-600"))
+                    }
+                    else
+                    {
+                        @((MarkupString)SvgIcons.GetIcon("pause", "h-5 w-5 text-gray-400"))
+                    }
                 </button>
                 <button @onclick="ShowHelp" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-200 focus-ring" title="How to use PromptVault" aria-label="Help">
                     @((MarkupString)SvgIcons.GetIcon("help", "h-5 w-5"))

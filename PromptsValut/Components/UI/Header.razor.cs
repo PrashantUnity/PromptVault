@@ -13,6 +13,7 @@ public partial class Header : ComponentBase
     [Parameter] public EventCallback OnShowFavorites { get; set; }
 
     [Inject] private IPromptService PromptService { get; set; } = default!;
+    [Inject] private IBackgroundRefreshService BackgroundRefreshService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private async Task ToggleSidebar()
@@ -43,5 +44,46 @@ public partial class Header : ComponentBase
     private async Task RefreshData()
     {
         await PromptService.RefreshExternalDataAsync();
+    }
+
+    private async Task ToggleBackgroundRefresh()
+    {
+        var isEnabled = BackgroundRefreshService.IsEnabled;
+        await PromptService.EnableBackgroundRefreshAsync(!isEnabled);
+        
+        if (!isEnabled)
+        {
+            await BackgroundRefreshService.StartAsync();
+        }
+        else
+        {
+            await BackgroundRefreshService.StopAsync();
+        }
+    }
+
+    private string GetCacheStatusText()
+    {
+        var isFresh = PromptService.IsDataFreshAsync().Result;
+        var timeUntilRefresh = PromptService.GetTimeUntilNextRefreshAsync().Result;
+        
+        if (isFresh && timeUntilRefresh > TimeSpan.Zero)
+        {
+            var minutes = (int)timeUntilRefresh.TotalMinutes;
+            return $"Fresh ({minutes}m)";
+        }
+        else if (BackgroundRefreshService.IsEnabled)
+        {
+            return "Refreshing...";
+        }
+        else
+        {
+            return "Manual";
+        }
+    }
+
+    private string GetCacheStatusColor()
+    {
+        var isFresh = PromptService.IsDataFreshAsync().Result;
+        return isFresh ? "text-green-600" : "text-yellow-600";
     }
 }
