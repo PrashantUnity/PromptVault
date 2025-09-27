@@ -503,4 +503,5 @@ public static class SvgIcons
             _ => ""
         };
     }
+
 }
