@@ -32,9 +32,15 @@ public partial class Header : ComponentBase
         await OnShowHelp.InvokeAsync();
     }
 
+    private async Task NavigateToHome()
+    {
+        Navigation.NavigateTo("");
+        await Task.CompletedTask;
+    }
+
     private async Task NavigateToGenerator()
     {
-        Navigation.NavigateTo("/generator");
+        Navigation.NavigateTo("generator");
         await Task.CompletedTask;
     }
 
